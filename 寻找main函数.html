@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #1E92FB; /*进度条颜色*/
+        height: 3px;
+    }
+    .pace .pace-progress-inner {
+         box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico">
+  <link rel="mask-icon" href="/images/favicon.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="fonts.loli.net/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.zhubokai.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":3,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="对于想要逆向入门的小伙伴来说，第一步的踏出总是非常艰难的，直接把程序扔进OD里的话，一串串的汇编指令，单个看还是理解的，放在一起就不认识了，接下来我带大家踏出这第一步，也是非常重要的一步，寻找main函数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="寻找main函数">
+<meta property="og:url" content="https://www.zhubokai.com/%E5%AF%BB%E6%89%BEmain%E5%87%BD%E6%95%B0.html">
+<meta property="og:site_name" content="Demonsのblog">
+<meta property="og:description" content="对于想要逆向入门的小伙伴来说，第一步的踏出总是非常艰难的，直接把程序扔进OD里的话，一串串的汇编指令，单个看还是理解的，放在一起就不认识了，接下来我带大家踏出这第一步，也是非常重要的一步，寻找main函数">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/1.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/2.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/3.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/4.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/5.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/6.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/7.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/8.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/9.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/10.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/11.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/12.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/13.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/14.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/15.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/16.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/17.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/18.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/19.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/20.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/21.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/22.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/23.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/24.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/25.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/26.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/27.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/28.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/29.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/30.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/31.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/32.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/33.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/34.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/main/35.png">
+<meta property="article:published_time" content="2020-09-30T05:52:39.000Z">
+<meta property="article:modified_time" content="2020-10-12T10:50:57.636Z">
+<meta property="article:author" content="Demons">
+<meta property="article:tag" content="逆向">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.zhubokai.com/images/main/1.png">
+
+<link rel="canonical" href="https://www.zhubokai.com/%E5%AF%BB%E6%89%BEmain%E5%87%BD%E6%95%B0.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>寻找main函数 | Demonsのblog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Demonsのblog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Demonsのblog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">祸莫大于不知足;咎莫大于欲得。故知足之足，常足矣</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-top">
+
+    <a href="/top/" rel="section"><i class="fa fa-signal fa-fw"></i>排行榜</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.zhubokai.com/%E5%AF%BB%E6%89%BEmain%E5%87%BD%E6%95%B0.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Demons">
+      <meta itemprop="description" content>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Demonsのblog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          寻找main函数
+        </h1>
+
+        <div class="post-meta">
+		
+		
+  <i class="fa fa-thumb-tack"></i>
+  <font color="7D26CD">置顶</font>
+  <span class="post-meta-divider">|</span>
+
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-09-30 13:52:39" itemprop="dateCreated datePublished" datetime="2020-09-30T13:52:39+08:00">2020-09-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-10-12 18:50:57" itemprop="dateModified" datetime="2020-10-12T18:50:57+08:00">2020-10-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%80%86%E5%90%91/" itemprop="url" rel="index"><span itemprop="name">逆向</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/%E5%AF%BB%E6%89%BEmain%E5%87%BD%E6%95%B0.html" class="post-meta-item leancloud_visitors" data-flag-title="寻找main函数" title="热度">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">热度：</span>
+              <span class="leancloud-visitors-count">℃</span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/%E5%AF%BB%E6%89%BEmain%E5%87%BD%E6%95%B0.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/%E5%AF%BB%E6%89%BEmain%E5%87%BD%E6%95%B0.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.7k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ul>
+<li>对于想要逆向入门的小伙伴来说，第一步的踏出总是非常艰难的，直接把程序扔进OD里的话，一串串的汇编指令，单个看还是理解的，放在一起就不认识了，接下来我带大家踏出这第一步，也是非常重要的一步，寻找main函数</li>
+</ul>
+<a id="more"></a>
+
+
+
+<ul>
+<li>接下来我带大家去深入一下</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;hello world&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>我们在 return 的地方下断点，看它的反汇编和堆栈窗口，在反汇编窗口的ret地方下断点</li>
+</ul>
+<p><img data-src="/images/main/1.png"></p>
+<ul>
+<li>使用F11单步，在调用堆栈中，可以看到在main函数调用之前，还有三个函数的调用</li>
+</ul>
+<p><img data-src="/images/main/2.png"></p>
+<ul>
+<li>可以看到，最底层的是 <code>mainCRTStartup() </code> –&gt; <code>     __scrt_common_main()</code> –&gt; <code>__scrt_common_main_seh()</code>  –&gt; <code>invoke_main()</code></li>
+<li>我们双击进去看一下它们的源码</li>
+</ul>
+<p><img data-src="/images/main/3.png"></p>
+<p><img data-src="/images/main/4.png"></p>
+<p><img data-src="/images/main/5.png"></p>
+<p><img data-src="/images/main/6.png"></p>
+<ul>
+<li>可以看到main函数是最后才被调用的，那什么是 <code>mainCRTStartup() </code>呢？它是c运行时库的入口点</li>
+<li>源码感兴趣的小伙伴可以自己分析一下，接下来步入正题，如何查找main函数</li>
+</ul>
+<h2 id="IDA查找main函数"><a href="#IDA查找main函数" class="headerlink" title="IDA查找main函数"></a>IDA查找main函数</h2><ul>
+<li>这里用到的程序是刚才那个，打印一个 hello world，使用的是vs2017编写的 debug版本的程序</li>
+<li>首先，将它拖入 IDA 中，打开 exports，选择 start</li>
+</ul>
+<p><img data-src="/images/main/7.png"></p>
+<ul>
+<li>可以看到有一个 <code>jmp</code> ，我们跳转进去</li>
+</ul>
+<p><img data-src="/images/main/8.png"></p>
+<ul>
+<li>发现了什么，<code>__scrt_common_main()</code> ，这不就是我们之前在堆栈中看到的函数吗</li>
+</ul>
+<p><img data-src="/images/main/9.png"></p>
+<ul>
+<li>继续跟进去，可以看到 <code>__scrt_common_main_seh()</code> 函数，我们选择第二个 call，进入这个函数</li>
+</ul>
+<p><img data-src="/images/main/10.png"></p>
+<ul>
+<li>这个里边就是 <code>__scrt_common_main_seh()</code> 内部了</li>
+</ul>
+<p><img data-src="/images/main/11.png"></p>
+<ul>
+<li>这里我们也没有必要一步一步去分析它的代码，我会告诉大家比较快的办法，我们主要看的部分大概在这个位置</li>
+</ul>
+<p><img data-src="/images/main/12.png"></p>
+<ul>
+<li>可以看到两个 <code>j_cexit</code> </li>
+</ul>
+<p><img data-src="/images/main/13.png"></p>
+<ul>
+<li>在它上边会有三个 call，我们选择中间的那个 call</li>
+</ul>
+<p><img data-src="/images/main/14.png"></p>
+<ul>
+<li>进去后选择最后一个call，前三个call都是在给他传参，最后一个就是main函数</li>
+</ul>
+<p><img data-src="/images/main/15.png"></p>
+<ul>
+<li>这里还有一个<code>jmp</code>跳转，我们进去后就是main函数</li>
+</ul>
+<p><img data-src="/images/main/16.png"></p>
+<ul>
+<li>到这里，IDA中寻找main函数就完成了，接下来看一下OD中怎么寻找main函数</li>
+</ul>
+<h2 id="OD查找main函数"><a href="#OD查找main函数" class="headerlink" title="OD查找main函数"></a>OD查找main函数</h2><ul>
+<li>这里继续用刚才那个程序</li>
+<li>查找main函数有一种方法：<ul>
+<li>MFC程序：查找四个push一个call</li>
+<li>C++程序：查找三个push一个call / debug版本，还可以查找三个call，选择中间那个call</li>
+</ul>
+</li>
+<li>这里的流程和刚才在IDA中的基本一致，将程序拖入进去后，选择第一个跳转</li>
+</ul>
+<p><img data-src="/images/main/17.png"></p>
+<ul>
+<li>进去后选择第一个call</li>
+</ul>
+<p><img data-src="/images/main/18.png"></p>
+<ul>
+<li>这里选择的是 两个call中的第二个call</li>
+</ul>
+<p><img data-src="/images/main/19.png"></p>
+<ul>
+<li>由于这是vs2017编写的程序，所有我们需要找三个相连的call，并选择中间的call</li>
+</ul>
+<p><img data-src="/images/main/20.png"></p>
+<ul>
+<li>这里选择最后一个，和IDA中一样，前三个都是在给main传参</li>
+</ul>
+<p><img data-src="/images/main/21.png"></p>
+<ul>
+<li><code>jmp</code> 跳转进去以后，就是main函数</li>
+</ul>
+<p><img data-src="/images/main/22.png"></p>
+<ul>
+<li>大部分程序都是一样的操作，熟练了很快就可以找到main函数</li>
+<li>接下来我再带大家看一下<code>MFC</code>编写的程序</li>
+</ul>
+<h2 id="MFC-debug版"><a href="#MFC-debug版" class="headerlink" title="MFC debug版"></a>MFC debug版</h2><ul>
+<li><p><strong><em>IDA</em></strong></p>
+</li>
+<li><p>先用IDA带大家看一下，先把程序拖入进IDA，选择exports–&gt;start</p>
+</li>
+</ul>
+<p><img data-src="/images/main/23.png"></p>
+<ul>
+<li>可以看到，IDA已经为我们解析出来了 <code>mainCRTStartup() </code></li>
+</ul>
+<p><img data-src="/images/main/24.png"></p>
+<ul>
+<li>进去以后，依旧选择第二个call</li>
+</ul>
+<p><img data-src="/images/main/25.png"></p>
+<ul>
+<li>往下翻到我们刚刚说的位置，找到exit，然后就可以看到<code>winmain</code>函数</li>
+</ul>
+<p><img data-src="/images/main/26.png"></p>
+<ul>
+<li>一直进去就可以到达目的地了</li>
+</ul>
+<p><img data-src="/images/main/27.png"></p>
+<p><img data-src="/images/main/28.png"></p>
+<ul>
+<li><strong><em>OD</em></strong></li>
+<li>接下来使用OD查找main函数</li>
+<li>进入第一个跳转</li>
+</ul>
+<p><img data-src="/images/main/29.png"></p>
+<ul>
+<li>选择第二个call</li>
+</ul>
+<p><img data-src="/images/main/30.png"></p>
+<ul>
+<li><p>因为这是一个MFC程序，所有我们需要找四个push，一个call，它的原型如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> __clrcall <span class="title">WinMain</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">  HINSTANCE hInstance,</span></span></span><br><span class="line"><span class="function"><span class="params">  HINSTANCE hPrevInstance,</span></span></span><br><span class="line"><span class="function"><span class="params">  LPSTR     lpCmdLine,</span></span></span><br><span class="line"><span class="function"><span class="params">  <span class="keyword">int</span>       nShowCmd</span></span></span><br><span class="line"><span class="function"><span class="params">)</span></span>;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p><img data-src="/images/main/31.png"></p>
+<ul>
+<li>继续跟进</li>
+</ul>
+<p><img data-src="/images/main/32.png"></p>
+<p><img data-src="/images/main/33.png"></p>
+<h2 id="MFC-release版"><a href="#MFC-release版" class="headerlink" title="MFC release版"></a>MFC release版</h2><ul>
+<li><strong><em>IDA</em></strong></li>
+<li>继续先用IDA查看</li>
+<li>选择 exports –&gt; start</li>
+</ul>
+<p><img data-src="/images/main/34.png"></p>
+<ul>
+<li>选择 <code>jmp ___tmainCRTStartup</code> ，进去后需要一直往下找，找到两个exit，然后才能看到，因为release的已经被优化过了</li>
+</ul>
+<p><img data-src="/images/main/35.png"></p>
+<ul>
+<li>看到这里，是不是感觉寻找main函数变得很简单，如果能熟练的寻找的一个程序的main函数，恭喜你，已经成功踏出了第一步</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+	
+    <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Demons
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.zhubokai.com/%E5%AF%BB%E6%89%BEmain%E5%87%BD%E6%95%B0.html" title="寻找main函数">https://www.zhubokai.com/寻找main函数.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow noopener noreferrer" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/%E9%80%86%E5%90%91/" rel="tag"><i class="fa fa-tag"></i> 逆向</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/SQL%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B.html" rel="prev" title="SQL注入入门教程">
+      <i class="fa fa-chevron-left"></i> SQL注入入门教程
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/%E4%B8%8D%E5%90%8C%E8%AF%AD%E8%A8%80%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%89%B9%E5%BE%81.html" rel="next" title="不同语言程序的特征">
+      不同语言程序的特征 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#IDA%E6%9F%A5%E6%89%BEmain%E5%87%BD%E6%95%B0"><span class="nav-text">IDA查找main函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#OD%E6%9F%A5%E6%89%BEmain%E5%87%BD%E6%95%B0"><span class="nav-text">OD查找main函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MFC-debug%E7%89%88"><span class="nav-text">MFC debug版</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MFC-release%E7%89%88"><span class="nav-text">MFC release版</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Demons" src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Demons</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Demons-t" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Demons-t" rel="external nofollow noopener noreferrer" target="_blank"><i class="fab fa-github-alt fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:kai.huan.demons@gmail.com" title="E-Mail → mailto:kai.huan.demons@gmail.com" rel="external nofollow noopener noreferrer" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.notion.so/App-2f4b23277b5748fba56f1a9d9d10ce52" title="notion → https:&#x2F;&#x2F;www.notion.so&#x2F;App-2f4b23277b5748fba56f1a9d9d10ce52" rel="external nofollow noopener noreferrer" target="_blank"><i class="fa fa-cat fa-fw"></i></a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://hugang-first.github.io/" title="http:&#x2F;&#x2F;hugang-first.github.io&#x2F;" rel="external nofollow noopener noreferrer" target="_blank">胡港</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Demons</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">34k</span>
+</div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5f2e451b7cef91a2" async="async"></script>
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+  <script>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 26642,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+
+
+
+
+  <script src="//code.tidio.co/8usoipuhv0iwfwugvjfoezyyxejjs12b.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
+  <script>
+      window.addEventListener('load', () => {
+      quicklink({
+        timeout : 3000,
+        priority: true,
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://www.zhubokai.com/%E5%AF%BB%E6%89%BEmain%E5%87%BD%E6%95%B0.html',]
+      });
+      });
+  </script>
+
+   
+
+ 
+<script>
+  var OriginTitile = document.title;
+  var titleTime;
+  document.addEventListener("visibilitychange", function() {
+    if (document.hidden) {
+      document.title = "(つェ⊂)我藏好了哦~" + OriginTitile;
+      clearTimeout(titleTime);
+    } else {
+      document.title = "(*´∇｀*) 被你发现啦~" + OriginTitile;
+      titleTime = setTimeout(function() {
+        document.title = OriginTitile;
+      }, 2000);
+    }
+  });
+</script>
+
+
+ 
+<script async src="//code.tidio.co/8usoipuhv0iwfwugvjfoezyyxejjs12b.js"></script>
+
+
+ 
+<script>
+  (function(h,o,t,j,a,r){
+    h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+    h._hjSettings={hjid:1934467,hjsv:6};
+    a=o.getElementsByTagName('head')[0];
+    r=o.createElement('script');r.async=1;
+    r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+    a.appendChild(r);
+  })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+</script>
+
+
+
+
+  <script src="/js/wobblewindow.js"></script>
+  <script>
+    //只在桌面版网页启用特效
+    if( window.innerWidth > 768  ){
+      $(document).ready(function () {
+        
+
+        
+
+        
+      });
+    }
+  </script>
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : true,
+      appId      : 'uKBH8r2O8Fr42ap3axemmi2O-gzGzoHsz',
+      appKey     : 'cku5uA0Yym3EWfUIGhrI7Xrb',
+      placeholder: "Just go go",
+      avatar     : 'monsterid',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
+
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/love.js"></script>
+
+<!--动态线条背景-->
+<script type="text/javascript" color="220,220,220" opacity="0.7" zindex="-2" count="200" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js">
+</script>
+
+<!-- 雪花特效 -->
+<script type="text/javascript" src="\js\snow.js"></script>

