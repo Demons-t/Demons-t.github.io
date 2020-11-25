@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://www.zhubokai.com/"/>
-  <updated>2020-11-14T06:05:55.182Z</updated>
+  <updated>2020-11-25T06:59:55.786Z</updated>
   <id>https://www.zhubokai.com/</id>
   
   <author>
@@ -17,16 +17,68 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>恶意代码分析--永恒之蓝</title>
-    <link href="https://www.zhubokai.com/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-%E6%B0%B8%E6%81%92%E4%B9%8B%E8%93%9D.html"/>
-    <id>https://www.zhubokai.com/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-%E6%B0%B8%E6%81%92%E4%B9%8B%E8%93%9D.html</id>
-    <published>2020-11-14T02:43:22.000Z</published>
-    <updated>2020-11-14T06:05:55.182Z</updated>
+    <title>CVE-2012-1889漏洞分析</title>
+    <link href="https://www.zhubokai.com/CVE-2012-1889%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html"/>
+    <id>https://www.zhubokai.com/CVE-2012-1889%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90.html</id>
+    <published>2020-11-25T06:16:47.000Z</published>
+    <updated>2020-11-25T06:59:55.786Z</updated>
     
     <summary type="html">
     
-      &lt;ul&gt;
-&lt;li&gt;推荐书籍：《恶意代码分析实战》&lt;/li&gt;
+      &lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;软件名称：Microsoft Internet Explorer&lt;/th&gt;
+&lt;th&gt;操作系统：Windows Xp/7&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;&lt;tr&gt;
+&lt;td&gt;软件版本：6.0/8.0&lt;/td&gt;
+&lt;td&gt;漏洞编号：CVE-2012-1889&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;漏洞模块：msxml3.dll&lt;/td&gt;
+&lt;td&gt;危害等级：高危&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;模块版本：8.90.1101.0&lt;/td&gt;
+&lt;td&gt;漏洞类型：缓冲区溢出&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;编译日期：2008-04-14&lt;/td&gt;
+&lt;td&gt;威胁类型：远程&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+    
+    </summary>
+    
+    
+      <category term="漏洞分析" scheme="https://www.zhubokai.com/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
+    
+    
+      <category term="漏洞分析" scheme="https://www.zhubokai.com/tags/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>WannaCry勒索病毒分析报告</title>
+    <link href="https://www.zhubokai.com/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-%E6%B0%B8%E6%81%92%E4%B9%8B%E8%93%9D.html"/>
+    <id>https://www.zhubokai.com/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-%E6%B0%B8%E6%81%92%E4%B9%8B%E8%93%9D.html</id>
+    <published>2020-11-14T02:43:22.000Z</published>
+    <updated>2020-11-25T06:22:44.562Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;1-样本概述&quot;&gt;&lt;a href=&quot;#1-样本概述&quot; class=&quot;headerlink&quot; title=&quot;1. 样本概述&quot;&gt;&lt;/a&gt;1. 样本概述&lt;/h1&gt;&lt;h2 id=&quot;1-1-样本信息&quot;&gt;&lt;a href=&quot;#1-1-样本信息&quot; class=&quot;headerlink&quot; title=&quot;1.1 样本信息&quot;&gt;&lt;/a&gt;1.1 样本信息&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;病毒名称：wannacry.exe&lt;/li&gt;
+&lt;li&gt;所属家族：Trojan.WanaCry.b&lt;/li&gt;
+&lt;li&gt;大小: 3723264 bytes&lt;/li&gt;
+&lt;li&gt;文件版本:6.1.7601.17514 (win7sp1_rtm.101119-1850)&lt;/li&gt;
+&lt;li&gt;修改时间: 2017年5月13日, 13:55:05&lt;/li&gt;
+&lt;li&gt;MD5: DB349B97C37D22F5EA1D1841E3C89EB4&lt;/li&gt;
+&lt;li&gt;SHA1: E889544AFF85FFAF8B0D0DA705105DEE7C97FE26&lt;/li&gt;
+&lt;li&gt;CRC32: 9FBB1227&lt;/li&gt;
+&lt;li&gt;病毒行为：释放 tasksche.exe到系统目录，开启服务，利用漏洞进行局域网，广域网传播&lt;/li&gt;
 &lt;/ul&gt;
     
     </summary>
@@ -40,21 +92,21 @@
   </entry>
   
   <entry>
-    <title>脱壳入门-寻找OEP</title>
+    <title>寻找OEP</title>
     <link href="https://www.zhubokai.com/%E8%84%B1%E5%A3%B3%E5%85%A5%E9%97%A8-%E5%AF%BB%E6%89%BEOEP.html"/>
     <id>https://www.zhubokai.com/%E8%84%B1%E5%A3%B3%E5%85%A5%E9%97%A8-%E5%AF%BB%E6%89%BEOEP.html</id>
     <published>2020-10-31T07:32:14.000Z</published>
-    <updated>2020-11-14T06:44:22.909Z</updated>
+    <updated>2020-11-25T06:17:15.063Z</updated>
     
     <summary type="html">
     
     </summary>
     
     
-      <category term="脱壳" scheme="https://www.zhubokai.com/categories/%E8%84%B1%E5%A3%B3/"/>
+      <category term="壳" scheme="https://www.zhubokai.com/categories/%E5%A3%B3/"/>
     
     
-      <category term="脱壳" scheme="https://www.zhubokai.com/tags/%E8%84%B1%E5%A3%B3/"/>
+      <category term="壳" scheme="https://www.zhubokai.com/tags/%E5%A3%B3/"/>
     
   </entry>
   
@@ -63,13 +115,12 @@
     <link href="https://www.zhubokai.com/C++%E5%8F%8D%E6%B1%87%E7%BC%96%E5%88%86%E6%9E%90.html"/>
     <id>https://www.zhubokai.com/C++%E5%8F%8D%E6%B1%87%E7%BC%96%E5%88%86%E6%9E%90.html</id>
     <published>2020-10-04T08:47:47.000Z</published>
-    <updated>2020-10-09T12:10:41.419Z</updated>
+    <updated>2020-11-25T06:19:58.288Z</updated>
     
     <summary type="html">
     
       &lt;ul&gt;
 &lt;li&gt;本节讲解了逆向分析中，C++在反汇编中的特征以及 &lt;code&gt;mfc&lt;/code&gt; 程序逆向的方式&lt;/li&gt;
-&lt;li&gt;推荐书籍：《C++反汇编与逆向分析技术揭秘》&lt;/li&gt;
 &lt;/ul&gt;
     
     </summary>
