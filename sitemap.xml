@@ -137,6 +137,13 @@
 
   
   <url>
+    <loc>https://www.zhubokai.com/tags/%E5%8D%9A%E5%AE%A2/</loc>
+    <lastmod>2021-01-01</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://www.zhubokai.com/tags/SQL/</loc>
     <lastmod>2021-01-01</lastmod>
     <changefreq>daily</changefreq>
@@ -144,7 +151,7 @@
   </url>
   
   <url>
-    <loc>https://www.zhubokai.com/tags/%E5%8D%9A%E5%AE%A2/</loc>
+    <loc>https://www.zhubokai.com/tags/C/</loc>
     <lastmod>2021-01-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -159,13 +166,6 @@
   
   <url>
     <loc>https://www.zhubokai.com/tags/%E9%80%86%E5%90%91/</loc>
-    <lastmod>2021-01-01</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.zhubokai.com/tags/C/</loc>
     <lastmod>2021-01-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -195,6 +195,13 @@
 
   
   <url>
+    <loc>https://www.zhubokai.com/categories/%E5%8D%9A%E5%AE%A2/</loc>
+    <lastmod>2021-01-01</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://www.zhubokai.com/categories/SQL/</loc>
     <lastmod>2021-01-01</lastmod>
     <changefreq>daily</changefreq>
@@ -202,7 +209,7 @@
   </url>
   
   <url>
-    <loc>https://www.zhubokai.com/categories/%E5%8D%9A%E5%AE%A2/</loc>
+    <loc>https://www.zhubokai.com/categories/C/</loc>
     <lastmod>2021-01-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -217,13 +224,6 @@
   
   <url>
     <loc>https://www.zhubokai.com/categories/%E9%80%86%E5%90%91/</loc>
-    <lastmod>2021-01-01</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.zhubokai.com/categories/C/</loc>
     <lastmod>2021-01-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>

@@ -488,7 +488,7 @@
 
 
 
-<h2 id="检测堆栈平衡"><a href="#检测堆栈平衡" class="headerlink" title="检测堆栈平衡"></a>检测堆栈平衡</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cmp     esi, esp</span><br><span class="line">&#x2F;&#x2F; call    j___RTC_CheckEsp ; 检查堆栈是否平衡，通常出现在需要平衡堆栈的函数调用之后，会在函数调用之前先保存 esp 的值，函数调用之后进行比对，如果不同就会引发程序的崩溃</span><br></pre></td></tr></table></figure>
+<h2 id="检测堆栈平衡"><a href="#检测堆栈平衡" class="headerlink" title="检测堆栈平衡"></a>检测堆栈平衡</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cmp     esi, esp</span><br><span class="line">call    j___RTC_CheckEsp ; 检查堆栈是否平衡，通常出现在需要平衡堆栈的函数调用之后，会在函数调用之前先保存 esp 的值，函数调用之后进行比对，如果不同就会引发程序的崩溃</span><br></pre></td></tr></table></figure>
 
 
 
